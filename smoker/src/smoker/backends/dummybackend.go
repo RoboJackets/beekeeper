@@ -92,6 +92,17 @@ func NewComponent(id, count uint, name, manufacturer string) *Component {
 		manufacturer: manufacturer}
 }
 
+// Gets all the components in this dummybackend
+func (b *DummyBackend) GetAllComponents() []Component {
+	comp := make([]Component, 0)
+	for _, bin := range b.bins {
+		for _, c := range bin.GetParts() {
+			comp = append(comp, c)
+		}
+	}
+	return comp
+}
+
 func (b *DummyBackend) AddComponent(comp *Component) error {
 	var selectedBin *Bin
 	for _, v := range b.bins {

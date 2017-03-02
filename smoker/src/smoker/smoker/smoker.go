@@ -2,45 +2,49 @@ package main
 
 import (
 	"bufio"
+	"color"
 	"fmt"
 	"os"
 	"smoker/backends"
-	_ "color"
 )
 
-const INTRO_TEXT =
-	`Welcome to Smoker - The superior beehive client
-   _________ ___  ____  / /_____  _____
-  / ___/ __ `+"`" + `__ \/ __ \/ //_/ _ \/ ___/
+const INTRO_TEXT = `Welcome to Smoker - The superior beehive client`
+const INTRO_ASCII = `   _________ ___  ____  / /_____  _____
+  / ___/ __ ` + "`" + `__ \/ __ \/ //_/ _ \/ ___/
  (__  ) / / / / / /_/ / ,< /  __/ /
 /____/_/ /_/ /_/\____/_/|_|\___/_/
 
-for help, type 'help'`
+`
+
+// TODO make this dummy backend a generic backend
+var commands map[string]func([]string, *backends.DummyBackend)
 
 // Main function for smoker
 func main() {
+
 	intro()
+	initCommands()
 
-	dummy := backends.NewDummyBackend(10)
-	fmt.Println(dummy)
+	backend := backends.NewDummyBackend(10)
+	color.Red("WARNING: Using DUMMY Backend. Your data will not be stored.")
 
-	component := backends.NewComponent(1, 1, "30 Ω Resistor", "DigiKey")
-	dummy.AddComponent(component)
-	if c, b, e := dummy.LookupId(1); e != nil {
-		fmt.Println("that part was not found")
-	} else {
-		fmt.Println(c)
-		fmt.Println(b)
-		// parts := b.GetParts()
-		// fmt.Println(parts)
-		// fmt.Println(b)
-		// fmt.Println(c)
+	quit := false
+	for !quit {
+		runCommand(read("> "), backend)
 	}
-
 }
 
 func intro() {
 	fmt.Println(INTRO_TEXT)
+	color.Cyan(INTRO_ASCII)
+
+	c := color.New(color.FgRed).Add(color.Bold)
+	fmt.Print("For help, type '")
+	c.Printf("help")
+	fmt.Println("'")
+
+	fmt.Println()
+	color.Yellow("This software is in heavy development. Please report bugs to RoboJackets/beehive")
 }
 
 // Reads a line of input
@@ -50,6 +54,7 @@ func read(s string) string {
 	text, err := reader.ReadString('\n')
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(0)
 	}
 	return text
 }
