@@ -1,0 +1,3 @@
+[submodule "smoker/src/color"]
+	path = smoker/src/color
+	url = https://github.com/fatih/color.git
