@@ -12,7 +12,7 @@ import (
 
 func initCommands() {
 
-	commands = make(map[string]func([]string, *backends.DummyBackend))
+	commands = make(map[string]func([]string, backends.Backend))
 	commands["help"] = replHelp
 	commands["h"] = replHelp
 
@@ -28,7 +28,7 @@ func initCommands() {
 }
 
 // Runs a repl command by keying into the command map
-func runCommand(prompt string, backend *backends.DummyBackend) {
+func runCommand(prompt string, backend backends.Backend) {
 	cmds := strings.Fields(prompt)
 
 	if len(cmds) == 0 {
@@ -42,7 +42,7 @@ func runCommand(prompt string, backend *backends.DummyBackend) {
 	}
 }
 
-func replHelp([]string, *backends.DummyBackend) {
+func replHelp([]string, backends.Backend) {
 	fmt.Println(`Welcome to the Smoker Help Page.
 
 List of Commands:`)
@@ -55,7 +55,7 @@ List of Commands:`)
 	w.Flush()
 }
 
-func replDump(s []string, b *backends.DummyBackend) {
+func replDump(s []string, b backends.Backend) {
 	c := b.GetAllComponents()
 
 	if len(c) == 0 {
@@ -70,7 +70,7 @@ func replDump(s []string, b *backends.DummyBackend) {
 	w.Flush()
 }
 
-func replScan (s []string, b *backends.DummyBackend) {
+func replScan (s []string, b backends.Backend) {
 	for {
 		idStr, err := readRaw("Scan an item or enter an ID> ")
 		if err != nil {
@@ -101,7 +101,7 @@ func replScan (s []string, b *backends.DummyBackend) {
 }
 
 // Queries the user for the info required to make a component
-func genComponent(id uint) *backends.Component {
+func genComponent(id uint) backends.Component {
 	// Need Count, Name, and Manufacturer
 	name, _ := readRaw("Enter Part Name> ")
 	countI := parseUint("Enter Part Count> ")
@@ -125,6 +125,6 @@ func parseUint(s string) uint {
 	return countI
 }
 
-func replQuit([]string, *backends.DummyBackend) {
+func replQuit([]string, backends.Backend) {
 	os.Exit(0)
 }

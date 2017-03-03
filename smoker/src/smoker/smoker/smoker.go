@@ -19,7 +19,7 @@ const INTRO_ASCII =
 `
 
 // TODO make this dummy backend a generic backend
-var commands map[string]func([]string, *backends.DummyBackend)
+var commands map[string]func([]string, backends.Backend)
 
 // Main function for smoker
 func main() {
