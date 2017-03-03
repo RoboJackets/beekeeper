@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/langstroth.iml" filepath="$PROJECT_DIR$/.idea/modules/langstroth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/langstroth_main.iml" filepath="$PROJECT_DIR$/.idea/modules/langstroth_main.iml" group="langstroth" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/langstroth_test.iml" filepath="$PROJECT_DIR$/.idea/modules/langstroth_test.iml" group="langstroth" />
+    </modules>
+  </component>
+</project>
