@@ -46,6 +46,9 @@ func (c *Component) GetManufacturer() string {
 func (c *Component) GetId() uint {
 	return c.id
 }
+func (c *Component) GetBin() *Bin {
+	return c.owner
+}
 
 type DummyBackend struct {
 	// Map of component ID to component
@@ -103,6 +106,7 @@ func (b *DummyBackend) GetAllComponents() []Component {
 	return comp
 }
 
+// Adds the component to the bin we think is the most suitable
 func (b *DummyBackend) AddComponent(comp *Component) error {
 	var selectedBin *Bin
 	for _, v := range b.bins {
@@ -123,6 +127,26 @@ func (b *DummyBackend) AddComponent(comp *Component) error {
 	b.idLookup[comp.id] = comp
 	b.components[comp] = true
 	return nil
+}
+
+// Moves a component from it's current bin to a valid one
+func (b *DummyBackend) MoveComponent(comp *Component, name string) error {
+	if (comp.owner == nil) {
+		return errors.New("Comp is not stored in a bin yet!")
+	}
+
+	for _, bin := range b.bins {
+		if bin.name == name {
+			if bin.capacity < uint(len(bin.parts)) {
+				delete(comp.owner.parts, comp)
+				comp.owner = &bin
+				bin.parts[comp] = true
+				return nil
+			}
+			return errors.New("'" + bin.name + "' is over capacity!")
+		}
+	}
+	return errors.New("'" + name + "' was not found!")
 }
 
 func (b *DummyBackend) LookupId(id uint) (*Component, *Bin, error) {

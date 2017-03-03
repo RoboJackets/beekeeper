@@ -1,7 +1,6 @@
 
 all:
 # hack to get go to cooperate
-	mkdir -p bin
 	export GOPATH=`pwd` && go install smoker/smoker
 
 pretty:
