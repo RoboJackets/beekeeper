@@ -9,7 +9,7 @@ import (
 	"smoker/backends"
 )
 
-const INTRO_TEXT = `Welcome to Smoker - The superior beehive client`
+const INTRO_TEXT = `Welcome to Smoker - The superior beekeper client`
 const INTRO_ASCII =
 	`   _________ ___  ____  / /_____  _____
   / ___/ __ ` + "`" + `__ \/ __ \/ //_/ _ \/ ___/
@@ -46,7 +46,7 @@ func intro() {
 	fmt.Println("'")
 
 	fmt.Println()
-	color.Yellow("This software is in heavy development. Please report bugs to RoboJackets/beehive")
+	color.Yellow("This software is in heavy development. Please report bugs to RoboJackets/beekeeper")
 }
 
 func readRaw(s string) (string, error) {

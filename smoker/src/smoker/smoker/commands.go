@@ -48,9 +48,9 @@ List of Commands:`)
 	// Observe how the b's and the d's, despite appearing in the
 	// second cell of each line, belong to different columns.
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
-	fmt.Fprintln(w, "(h)elp\tPrints this help message")
-	fmt.Fprintln(w, "(d)ump\tDumps information for all components")
-	fmt.Fprintln(w, "(s)can\tLaunches the interactive scanner interface to add/identify parts")
+	fmt.Fprintln(w, "(h)elp\tPrints this help message.")
+	fmt.Fprintln(w, "(d)ump\tDumps information for all components. (q)uit to exit dump mode.")
+	fmt.Fprintln(w, "(s)can\tLaunches the interactive scanner interface to add/identify parts/")
 	w.Flush()
 }
 
@@ -75,7 +75,7 @@ func replScan (s []string, b *backends.DummyBackend) {
 		if err != nil {
 			fmt.Println()
 			break
-		} else if (idStr == "quit") {
+		} else if (idStr == "quit" || idStr == "q") {
 			break
 		}
 
