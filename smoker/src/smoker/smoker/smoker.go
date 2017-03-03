@@ -5,13 +5,12 @@ import (
 	"color"
 	"fmt"
 	"os"
-	"strings"
 	"smoker/backends"
+	"strings"
 )
 
 const INTRO_TEXT = `Welcome to Smoker - The superior beekeper client`
-const INTRO_ASCII =
-	`   _________ ___  ____  / /_____  _____
+const INTRO_ASCII = `   _________ ___  ____  / /_____  _____
   / ___/ __ ` + "`" + `__ \/ __ \/ //_/ _ \/ ___/
  (__  ) / / / / / /_/ / ,< /  __/ /
 /____/_/ /_/ /_/\____/_/|_|\___/_/
@@ -55,6 +54,7 @@ func readRaw(s string) (string, error) {
 	text, err := reader.ReadString('\n')
 	return strings.TrimSpace(text), err
 }
+
 // Reads a line of input
 func read(s string) string {
 	text, err := readRaw(s)

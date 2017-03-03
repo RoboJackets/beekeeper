@@ -139,7 +139,7 @@ func (b *DummyBackend) AddComponent(comp Component) (Bin, error) {
 
 // Moves a component from it's current bin to a valid one
 func (b *DummyBackend) MoveComponent(comp Component, name string) error {
-	if (comp.GetBin() == nil) {
+	if comp.GetBin() == nil {
 		return errors.New("Comp is not stored in a bin yet!")
 	}
 

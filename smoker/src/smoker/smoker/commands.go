@@ -1,14 +1,14 @@
 package main
 
 import (
+	"color"
+	"encoding/base64"
 	"fmt"
 	"os"
+	"smoker/backends"
 	"strconv"
 	"strings"
-	"color"
-	"smoker/backends"
 	"text/tabwriter"
-	"encoding/base64"
 )
 
 func initCommands() {
@@ -80,7 +80,7 @@ func replScan(s []string, b backends.Backend) {
 		if err != nil {
 			fmt.Println()
 			break
-		} else if (idStr == "quit" || idStr == "q") {
+		} else if idStr == "quit" || idStr == "q" {
 			break
 		}
 
@@ -93,10 +93,10 @@ func replScan(s []string, b backends.Backend) {
 		componentId := uint(idInt)
 		_, bin, err := b.LookupId(componentId)
 		if err != nil {
-			 // Add a new item
+			// Add a new item
 			comp := genComponent(componentId)
 			bin, err = b.AddComponent(comp)
-			if (err != nil) {
+			if err != nil {
 				fmt.Println("Failed adding part: " + err.Error())
 				continue
 			}
@@ -106,7 +106,7 @@ func replScan(s []string, b backends.Backend) {
 
 			for {
 				newBin, err := readRaw("Move part?> ")
-				if (err != nil || len(newBin) == 0) {
+				if err != nil || len(newBin) == 0 {
 					// we got nothing to move to...
 					break
 				}
