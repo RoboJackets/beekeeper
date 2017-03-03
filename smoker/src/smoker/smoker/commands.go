@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"color"
 	"smoker/backends"
 	"text/tabwriter"
 )
@@ -93,7 +94,8 @@ func replScan (s []string, b *backends.DummyBackend) {
 			b.AddComponent(comp)
 		} else {
 			// Display found item
-			fmt.Println(bin.GetName())
+			c := color.New(color.FgWhite).Add(color.Bold)
+			c.Println(bin.GetName())
 		}
 	}
 }
