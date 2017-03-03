@@ -27,4 +27,4 @@ Please report issues on [[https://github.com/RoboJackets/beekeeper][RoboJackets/
 
 For help on commands, run ~help~ in the smoker repl.
 
-You'll figure it out, right?
+You'll figure it out on your own, right?

@@ -5,7 +5,7 @@ type Backend interface {
 	GetAllComponents() []Component
 	MoveComponent(Component, string) error
 	LookupId(uint) (Component, Bin, error)
-	AddComponent(Component) error
+	AddComponent(Component) (Bin, error)
 }
 
 type Bin interface {

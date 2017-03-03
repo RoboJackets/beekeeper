@@ -3,6 +3,7 @@ package backends
 import (
 	"errors"
 	"strconv"
+	"fmt"
 )
 
 // Represents a bin
@@ -33,7 +34,8 @@ func (b *DummyBin) deletePart(c Component) {
 	delete(b.parts, c)
 }
 
-// Represents a component
+// Represents a component.
+// Probably will be used in all future backends
 type DummyComponent struct {
 	id, count uint
 	owner     Bin
@@ -114,7 +116,7 @@ func (b *DummyBackend) GetAllComponents() []Component {
 }
 
 // Adds the component to the bin we think is the most suitable
-func (b *DummyBackend) AddComponent(comp Component) error {
+func (b *DummyBackend) AddComponent(comp Component) (Bin, error) {
 	var selectedBin *DummyBin
 	for _, v := range b.bins {
 		if v.capacity > uint(len(v.parts)) {
@@ -123,7 +125,7 @@ func (b *DummyBackend) AddComponent(comp Component) error {
 		}
 	}
 	if selectedBin == nil {
-		return errors.New("No more space in bins!")
+		return nil, errors.New("No more space in bins!")
 	}
 
 	// Actually add component to bin
@@ -133,7 +135,7 @@ func (b *DummyBackend) AddComponent(comp Component) error {
 	// Add lookup pointers for us
 	b.idLookup[comp.GetId()] = comp
 	b.components[comp] = true
-	return nil
+	return selectedBin, nil
 }
 
 // Moves a component from it's current bin to a valid one
@@ -144,7 +146,7 @@ func (b *DummyBackend) MoveComponent(comp Component, name string) error {
 
 	for _, bin := range b.bins {
 		if bin.name == name {
-			if bin.capacity < uint(len(bin.parts)) {
+			if bin.capacity > uint(len(bin.parts)) {
 				comp.GetBin().deletePart(comp)
 				// delete(comp.owner.parts, comp)
 				comp.setBin(&bin)

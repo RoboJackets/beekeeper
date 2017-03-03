@@ -8,6 +8,7 @@ import (
 	"color"
 	"smoker/backends"
 	"text/tabwriter"
+	"encoding/base64"
 )
 
 func initCommands() {
@@ -21,6 +22,8 @@ func initCommands() {
 
 	commands["scan"] = replScan
 	commands["s"] = replScan
+
+	commands["moo"] = replMoo
 
 	commands["quit"] = replQuit
 	commands["bye"] = replQuit
@@ -50,6 +53,7 @@ List of Commands:`)
 	// second cell of each line, belong to different columns.
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
 	fmt.Fprintln(w, "(h)elp\tPrints this help message.")
+	fmt.Fprintln(w, "(q)uit\tQuit's the current repl mode. If at top level, quit.")
 	fmt.Fprintln(w, "(d)ump\tDumps information for all components. (q)uit to exit dump mode.")
 	fmt.Fprintln(w, "(s)can\tLaunches the interactive scanner interface to add/identify parts/")
 	w.Flush()
@@ -70,7 +74,7 @@ func replDump(s []string, b backends.Backend) {
 	w.Flush()
 }
 
-func replScan (s []string, b backends.Backend) {
+func replScan(s []string, b backends.Backend) {
 	for {
 		idStr, err := readRaw("Scan an item or enter an ID> ")
 		if err != nil {
@@ -91,13 +95,48 @@ func replScan (s []string, b backends.Backend) {
 		if err != nil {
 			 // Add a new item
 			comp := genComponent(componentId)
-			b.AddComponent(comp)
+			bin, err = b.AddComponent(comp)
+			if (err != nil) {
+				fmt.Println("Failed adding part: " + err.Error())
+				continue
+			}
+
+			// Display added part
+			printBin(bin.GetName())
+
+			for {
+				newBin, err := readRaw("Move part?> ")
+				if (err != nil || len(newBin) == 0) {
+					// we got nothing to move to...
+					break
+				}
+				if err := b.MoveComponent(comp, newBin); err == nil {
+					// Success!
+					break
+				} else {
+					fmt.Println("Could not move component: " + err.Error())
+					continue
+				}
+			}
 		} else {
 			// Display found item
-			c := color.New(color.FgWhite).Add(color.Bold)
-			c.Println(bin.GetName())
+			printBin(bin.GetName())
 		}
 	}
+}
+
+func printBin(s string) {
+	c := color.New(color.FgWhite).Add(color.Bold)
+	c.Println(s)
+}
+
+func replMoo(s []string, b backends.Backend) {
+	moo, _ := base64.StdEncoding.DecodeString("IF9fX19fX19fIA0KPCBNb28uLi4" +
+		"gPg0KIC0tLS0tLS0tIA0KICAgXA0KICAgIFwgICAgICAgICAgICAgIC4uLi4gICAgICAgDQ" +
+		"ogICAgICAgICAgIC4uLi4uLi4uICAgIC4gICAgICANCiAgICAgICAgICAuICAgICAgICAgI" +
+		"CAgLiAgICAgIA0KICAgICAgICAgLiAgICAgICAgICAgICAuICAgICAgDQouLi4uLi4uLi4g" +
+		"ICAgICAgICAgICAgIC4uLi4uLi4NCi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLg0K")
+	fmt.Println(string(moo))
 }
 
 // Queries the user for the info required to make a component
