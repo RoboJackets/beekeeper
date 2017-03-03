@@ -10,8 +10,7 @@
 *.ear
 
 # IDE Files #
-**/.idea/workspace.xml
-**/.idea/tasks.xml
+**/.idea
 *.iws
 
 # Gradle Files #
