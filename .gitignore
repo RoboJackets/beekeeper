@@ -8,6 +8,7 @@
 *.jar
 *.war
 *.ear
+!gradle-wrapper.jar
 
 # IDE Files #
 **/.idea
