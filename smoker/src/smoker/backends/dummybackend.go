@@ -3,7 +3,6 @@ package backends
 import (
 	"errors"
 	"strconv"
-	"fmt"
 )
 
 // Represents a bin
