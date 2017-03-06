@@ -7,6 +7,7 @@ import (
 	"os"
 	"smoker/backends"
 	"strconv"
+	"errors"
 	"strings"
 	"text/tabwriter"
 )
@@ -20,8 +21,14 @@ func initCommands() {
 	commands["dump"] = replDump
 	commands["d"] = replDump
 
+	commands["grep"] = replGrep
+	commands["g"] = replGrep
+
 	commands["scan"] = replScan
 	commands["s"] = replScan
+
+	commands["rm"] = replRm
+	commands["r"] = replRm
 
 	commands["moo"] = replMoo
 
@@ -55,8 +62,20 @@ List of Commands:`)
 	fmt.Fprintln(w, "(h)elp\tPrints this help message.")
 	fmt.Fprintln(w, "(q)uit\tQuit's the current repl mode. If at top level, quit.")
 	fmt.Fprintln(w, "(d)ump\tDumps information for all components. (q)uit to exit dump mode.")
+	fmt.Fprintln(w, "(r)m <ID> [<key>, ...]\tDeletes one or more keys.")
+	fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
 	fmt.Fprintln(w, "(s)can\tLaunches the interactive scanner interface to add/identify parts/")
 	w.Flush()
+}
+
+func printDump(c []backends.Component) {
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
+	fmt.Fprintln(w, "ID"+"\t"+"BIN"+"\t"+"NAME"+"\t"+"MANUFACTURER"+"\t"+"COUNT"+"\t")
+	for _, v := range c {
+		fmt.Fprintln(w, strconv.Itoa(int(v.GetId()))+"\t"+v.GetBin().GetName()+"\t"+v.GetName()+"\t"+v.GetManufacturer()+"\t"+strconv.Itoa(int(v.GetCount()))+"\t")
+	}
+	w.Flush()
+
 }
 
 func replDump(s []string, b backends.Backend) {
@@ -65,13 +84,7 @@ func replDump(s []string, b backends.Backend) {
 	if len(c) == 0 {
 		fmt.Println("No data is present.")
 	}
-
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
-	fmt.Fprintln(w, "ID"+"\t"+"BIN"+"\t"+"NAME"+"\t"+"MANUFACTURER"+"\t")
-	for _, v := range c {
-		fmt.Fprintln(w, strconv.Itoa(int(v.GetId()))+"\t"+v.GetBin().GetName()+"\t"+v.GetName()+"\t"+v.GetManufacturer()+"\t")
-	}
-	w.Flush()
+	printDump(c)
 }
 
 func replScan(s []string, b backends.Backend) {
@@ -139,23 +152,60 @@ func replMoo(s []string, b backends.Backend) {
 	fmt.Println(string(moo))
 }
 
+func replGrep(s []string, b backends.Backend) {
+	args := strings.Join(s, " ")
+	if (len(args) == 0) {
+		fmt.Println("Please enter a search query to grep for.")
+		return
+	}
+	components := b.GeneralSearch(args)
+	printDump(components)
+}
+
+func replRm(args []string, b backends.Backend) {
+	if (len(args) == 0) {
+		fmt.Println("Input ID values into rm to delete them.")
+		return
+	}
+	components := make([]backends.Component, 0)
+	for _, v := range args {
+		if id, err := strconv.Atoi(v); err != nil {
+			fmt.Println("'" + v + "' is not a valid ID.")
+			return
+		} else if comp, _, err := b.LookupId(uint(id)); err != nil {
+			fmt.Println("'" + v + "' is not a valid ID.")
+			return
+		} else {
+			components = append(components, comp)
+		}
+	}
+
+	for _, comp := range components {
+		if err := b.RemoveComponent(comp); err != nil {
+			fmt.Println("[INTERNAL] An internal error occurred when deleting an element. Partial deletion probably occured.")
+			return
+		}
+	}
+}
+
 // Queries the user for the info required to make a component
 func genComponent(id uint) backends.Component {
 	// Need Count, Name, and Manufacturer
 	name, _ := readRaw("Enter Part Name> ")
-	countI := parseUint("Enter Part Count> ")
 	man, _ := readRaw("Enter Part Manufacturer> ")
+	countI := parseUint("Enter Part Count> ")
 
 	return backends.NewComponent(id, countI, name, man)
 }
 
 // Parse uint with internal error checking (loop on fail)
 func parseUint(s string) uint {
-	var err error
+	var err error = errors.New("dummy error")
 	var countI uint
+	var i uint64
 	for err != nil {
 		countS, _ := readRaw(s)
-		i, err := strconv.ParseUint(countS, 10, 32)
+		i, err = strconv.ParseUint(countS, 10, 32)
 		countI = uint(i)
 		if err != nil {
 			fmt.Println("'" + countS + "' is not a valid number.")

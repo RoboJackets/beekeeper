@@ -3,6 +3,7 @@ package backends
 import (
 	"errors"
 	"strconv"
+	"strings"
 )
 
 // Represents a bin
@@ -54,8 +55,19 @@ func (c *DummyComponent) GetId() uint {
 func (c *DummyComponent) GetBin() Bin {
 	return c.owner
 }
+func (c *DummyComponent) GetCount() uint {
+	return c.count
+}
 func (c *DummyComponent) setBin(b Bin) {
 	c.owner = b
+}
+func (c *DummyComponent) MatchStr(s string) bool {
+	totalStr := strings.Join(
+		[]string{c.GetName(),
+			c.GetManufacturer(),
+			strconv.Itoa(int(c.GetId())),
+			c.GetBin().GetName()}, " ")
+	return strings.Contains(strings.ToLower(totalStr), strings.ToLower(s))
 }
 
 type DummyBackend struct {
@@ -147,15 +159,15 @@ func (b *DummyBackend) MoveComponent(comp Component, name string) error {
 		if bin.name == name {
 			if bin.capacity > uint(len(bin.parts)) {
 				comp.GetBin().deletePart(comp)
-				// delete(comp.owner.parts, comp)
 				comp.setBin(&bin)
 				bin.parts[comp] = true
+				// Don't need to touch b.components
 				return nil
 			}
 			return errors.New("'" + bin.name + "' is over capacity!")
 		}
 	}
-	return errors.New("'" + name + "' was not found!")
+	return errors.New("Bin '" + name + "' was not found!")
 }
 
 func (b *DummyBackend) LookupId(id uint) (Component, Bin, error) {
@@ -166,5 +178,28 @@ func (b *DummyBackend) LookupId(id uint) (Component, Bin, error) {
 			return nil, nil, errors.New("[INTERNAL] The component found has no bin associated with it.")
 		}
 		return component, component.GetBin(), nil
+	}
+}
+
+func (b *DummyBackend) GeneralSearch(s string) []Component {
+	c := make([]Component, 0)
+	// Welcome to the worst inventory system on the planet
+	for _, comp := range b.GetAllComponents() {
+		if comp.MatchStr(s) {
+			c = append(c, comp)
+		}
+	}
+	return c
+}
+
+func (b *DummyBackend) RemoveComponent(comp Component) error {
+	if comp.GetBin() == nil {
+		return errors.New("The requested component is not present")
+	} else {
+		comp.GetBin().deletePart(comp)
+		comp.setBin(nil)
+		delete(b.idLookup, comp.GetId())
+		delete(b.components, comp)
+		return nil
 	}
 }
