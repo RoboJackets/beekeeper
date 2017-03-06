@@ -4,7 +4,7 @@ type Backend interface {
 	// Dump all components. Should not be used unless debugging
 	// or if you actually want a dump
 	GetAllComponents() []Component
-	// Moves components to another bin
+	// Moves components to another bin. Error on bin not existing or full
 	MoveComponent(Component, string) error
 	// Looks up an id. Will return error if the id does not exist
 	LookupId(uint) (Component, Bin, error)

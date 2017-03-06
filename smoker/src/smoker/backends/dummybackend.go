@@ -161,7 +161,7 @@ func (b *DummyBackend) MoveComponent(comp Component, name string) error {
 				comp.GetBin().deletePart(comp)
 				comp.setBin(&bin)
 				bin.parts[comp] = true
-				// Don't need to touch b.components
+				// Don't need to touch b.components or b.idLookup
 				return nil
 			}
 			return errors.New("'" + bin.name + "' is over capacity!")

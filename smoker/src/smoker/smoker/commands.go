@@ -3,11 +3,11 @@ package main
 import (
 	"color"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"os"
 	"smoker/backends"
 	"strconv"
-	"errors"
 	"strings"
 	"text/tabwriter"
 )
@@ -29,6 +29,9 @@ func initCommands() {
 
 	commands["rm"] = replRm
 	commands["r"] = replRm
+
+	commands["mv"] = replMove
+	commands["m"] = replMove
 
 	commands["moo"] = replMoo
 
@@ -119,7 +122,7 @@ func replScan(s []string, b backends.Backend) {
 
 			for {
 				newBin, err := readRaw("Move part?> ")
-				if err != nil || len(newBin) == 0 {
+				if err != nil || len(newBin) == 0 || newBin == "quit" || newBin == "q" {
 					// we got nothing to move to...
 					break
 				}
@@ -154,7 +157,7 @@ func replMoo(s []string, b backends.Backend) {
 
 func replGrep(s []string, b backends.Backend) {
 	args := strings.Join(s, " ")
-	if (len(args) == 0) {
+	if len(args) == 0 {
 		fmt.Println("Please enter a search query to grep for.")
 		return
 	}
@@ -162,8 +165,26 @@ func replGrep(s []string, b backends.Backend) {
 	printDump(components)
 }
 
+func replMove(args []string, b backends.Backend) {
+	if len(args) != 2 {
+		fmt.Println("rm needs exactly 2 arguments.")
+		return
+	}
+	if id, err := strconv.Atoi(args[0]); err != nil {
+		fmt.Println("'" + args[0] + "' is not a valid ID!")
+		return
+	} else if component, _, err := b.LookupId(uint(id)); err != nil {
+		fmt.Println("No component with id '" + strconv.Itoa(id) + "' was found.")
+		return
+	} else if err := b.MoveComponent(component, args[1]); err != nil {
+		fmt.Println("Error: " + err.Error())
+		return
+	}
+	// We completed successfully!
+}
+
 func replRm(args []string, b backends.Backend) {
-	if (len(args) == 0) {
+	if len(args) == 0 {
 		fmt.Println("Input ID values into rm to delete them.")
 		return
 	}
