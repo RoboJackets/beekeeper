@@ -33,6 +33,9 @@ func initCommands() {
 	commands["mv"] = replMove
 	commands["m"] = replMove
 
+	commands["u"] = replUpdate
+	commands["update"] = replUpdate
+
 	commands["moo"] = replMoo
 
 	commands["quit"] = replQuit
@@ -66,6 +69,8 @@ List of Commands:`)
 	fmt.Fprintln(w, "(q)uit\tQuit's the current repl mode. If at top level, quit.")
 	fmt.Fprintln(w, "(d)ump\tDumps information for all components. (q)uit to exit dump mode.")
 	fmt.Fprintln(w, "(r)m <ID> [<key>, ...]\tDeletes one or more keys.")
+	fmt.Fprintln(w, "(m)v <ID> <BIN>\tMoves <ID> to <BIN> if possible.")
+	fmt.Fprintln(w, "(u)pdate <ID> <COUNT>\tUpdates the count of ID to COUNT.")
 	fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
 	fmt.Fprintln(w, "(s)can\tLaunches the interactive scanner interface to add/identify parts/")
 	w.Flush()
@@ -206,6 +211,23 @@ func replRm(args []string, b backends.Backend) {
 			fmt.Println("[INTERNAL] An internal error occurred when deleting an element. Partial deletion probably occured.")
 			return
 		}
+	}
+}
+
+func replUpdate (args []string, b backends.Backend) {
+	if len(args) != 2 {
+		fmt.Println("Update must take 2 arguments.")
+		return
+	}
+
+	if i, err := strconv.ParseUint(args[0], 10, 32); err != nil {
+		fmt.Println("'" + args[0] + "' is not a valid ID.")
+	} else if component, _, err := b.LookupId(uint(i)); err != nil {
+		fmt.Println("'" + args[0] + "' is not a present component.")
+	} else if j, err := strconv.ParseUint(args[1], 10, 32); err != nil {
+		fmt.Println("'" + args[1] + "' is not a valid count.")
+	} else {
+		component.SetCount(uint(j))
 	}
 }
 

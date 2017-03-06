@@ -58,6 +58,9 @@ func (c *DummyComponent) GetBin() Bin {
 func (c *DummyComponent) GetCount() uint {
 	return c.count
 }
+func (c *DummyComponent) SetCount(u uint) {
+	c.count = u
+}
 func (c *DummyComponent) setBin(b Bin) {
 	c.owner = b
 }

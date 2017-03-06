@@ -30,6 +30,7 @@ type Component interface {
 	GetManufacturer() string
 	GetId() uint
 	GetCount() uint
+	SetCount(uint)
 	GetBin() Bin
 	setBin(Bin)
 	// Return true if the input string matches any field in this component
