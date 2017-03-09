@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Beekeeper - Create Account</title>
+
+	<!-- external resource links -->
+	<link rel="stylesheet"
+		  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+		  integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+		  crossorigin="anonymous">
+
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"
+			integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+			crossorigin="anonymous"></script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
+			integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+			crossorigin="anonymous"></script>
+
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+			integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+			crossorigin="anonymous"></script>
+
+	<!-- page resource files -->
+	<script src="create_account.js"></script>
+	<link rel="stylesheet" href="create_cccount.css">
+
+	<!-- internal resource links -->
+	<script src="/js/global_on_page_load.js"></script>
+	<script src="/js/banner.js"></script>
+	<script src="/js/authentication.js"></script>
+
+	<!-- initialize page -->
+	<script>
+		jQuery(document).ready(function(){
+			on_page_ready();
+		});
+	</script>
+</head>
+<body>
+<!-- page content -->
+<div class="container" id="create_account_container">
+	<div class="row">
+		<div class="col-xs-12 col-sm-12 col-md-offset-3 col-md-6 col-lg-offset-3 col-lg-6">
+			<div id="banner_inject"></div>
+
+			<div class="well">
+				<h1>Create Account</h1>
+
+				<form>
+					<div class="form-group" id="email_div">
+						<label for="email_input">Email</label>
+						<input type="email" class="form-control" id="email_input" placeholder="email">
+						<span id="email_input_feedback" class="help-block"></span>
+					</div>
+
+					<div class="form-group" id="username_div">
+						<label for="username_input">Username</label>
+						<input type="text" class="form-control" id="username_input" placeholder="username">
+						<span id="username_input_feedback" class="help-block"></span>
+					</div>
+
+					<div class="form-group" id="passwd_div">
+						<label for="passwd_input">Password</label>
+						<input type="password" class="form-control" id="passwd_input" placeholder="password">
+						<span id="passwd_input_feedback" class="help-block"></span>
+					</div>
+
+					<div class="form-group" id="cnf_passwd_div">
+						<label for="cnf_passwd_input">Confirm Password</label>
+						<input type="password" class="form-control" id="cnf_passwd_input" placeholder="password">
+						<span id="cnf_passwd_input_feedback" class="help-block"></span>
+					</div>
+
+					<div class="form-group">
+						<label for="type_input">Subteam</label>
+						<select class="form-control" id="type_input">
+							<option>Electrical</option>
+							<option>Mechanical</option>
+							<option>Software</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<button type="button" class="btn btn-primary" id="create_button">Create Account</button>
+						<span id="input_feedback" class="help-block"></span>
+					</div>
+				</form>
+
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
