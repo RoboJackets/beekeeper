@@ -38,6 +38,9 @@ func initCommands() {
 
 	commands["moo"] = replMoo
 
+	commands["w"] = replWelcome
+	commands["welcome"] = replWelcome
+
 	commands["quit"] = replQuit
 	commands["bye"] = replQuit
 	commands["q"] = replQuit
@@ -66,13 +69,14 @@ List of Commands:`)
 	// second cell of each line, belong to different columns.
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
 	fmt.Fprintln(w, "(h)elp\tPrints this help message.")
+	fmt.Fprintln(w, "(w)elcome\tPrints a overview message, helpful to beginners.")
 	fmt.Fprintln(w, "(q)uit\tQuit's the current repl mode. If at top level, quit.")
 	fmt.Fprintln(w, "(d)ump\tDumps information for all components.")
 	fmt.Fprintln(w, "(r)m <ID> [<ID>, ...]\tDeletes one or more components, by ID.")
 	fmt.Fprintln(w, "(m)v <ID> <BIN>\tMoves <ID> to <BIN> if possible.")
 	fmt.Fprintln(w, "(u)pdate <ID> <COUNT>\tUpdates the count of ID to COUNT.")
 	fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
-	fmt.Fprintln(w, "(s)can\tLaunches the interactive scanner interface to add/identify parts. (q)uit to exit scanning mode.")
+	fmt.Fprintln(w, "(s)can\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
 	w.Flush()
 }
 
@@ -229,6 +233,16 @@ func replUpdate(args []string, b backends.Backend) {
 	} else {
 		component.SetCount(uint(j))
 	}
+}
+
+func replWelcome(args []string, b backends.Backend) {
+	fmt.Println("Welcome to Smoker!\n")
+	fmt.Println("Smoker is the CLI frontend to the BeeKeeper inventory suite.")
+	fmt.Println("It offers quick and easy access to all functionality beekeeper provides, while staying out of your way as much as possible.")
+	fmt.Println()
+	fmt.Println("A good place to get started is the 'scan' command, which opens a seperate scanning REPL, allowing you to add new items if available, and print locations of items if found.")
+	fmt.Println()
+	fmt.Println("For documentation, press 'help'")
 }
 
 // Queries the user for the info required to make a component
