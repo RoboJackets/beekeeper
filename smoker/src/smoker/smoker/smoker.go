@@ -25,9 +25,13 @@ func main() {
 
 	intro()
 	initCommands()
-
-	backend := backends.NewDummyBackend(10)
 	color.Red("WARNING: Using DUMMY Backend. Your data will not be stored.")
+
+	// Get auth credentials
+	auth := GenerateCredential()
+
+	// Make our dummy backend
+	backend := backends.NewDummyBackend(auth, 10)
 
 	quit := false
 	for !quit {
@@ -42,7 +46,7 @@ func intro() {
 	c := color.New(color.FgRed).Add(color.Bold)
 	fmt.Print("For help, type '")
 	c.Printf("help")
-	fmt.Println("'")
+	fmt.Println("' in the REPL")
 
 	fmt.Println()
 	color.Yellow("This software is in heavy development. Please report bugs to RoboJackets/beekeeper")

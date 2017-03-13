@@ -214,7 +214,7 @@ func replRm(args []string, b backends.Backend) {
 	}
 }
 
-func replUpdate (args []string, b backends.Backend) {
+func replUpdate(args []string, b backends.Backend) {
 	if len(args) != 2 {
 		fmt.Println("Update must take 2 arguments.")
 		return

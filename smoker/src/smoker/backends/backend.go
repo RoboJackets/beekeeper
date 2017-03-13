@@ -37,3 +37,11 @@ type Component interface {
 	// Ex: A0 should return true if we are in bin A0, or if we are "resistor A0"
 	MatchStr(string) bool
 }
+
+type Credential interface {
+	GetUsername() string
+	// This is password right now, but it really should be an API key or a hashed version.
+	GetAuth() string
+	// Verify the credentials are good
+	Verify() bool
+}

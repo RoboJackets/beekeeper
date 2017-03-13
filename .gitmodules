@@ -1,3 +1,6 @@
 [submodule "smoker/src/color"]
 	path = smoker/src/color
 	url = https://github.com/fatih/color.git
+[submodule "smoker/src/golang.org/x/crypto"]
+	path = smoker/src/golang.org/x/crypto
+	url = git@github.com:golang/crypto.git

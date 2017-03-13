@@ -81,11 +81,13 @@ type DummyBackend struct {
 	components map[Component]bool
 	// List of all the bins
 	bins []DummyBin
+
+	auth Credential
 }
 
 // Makes a very simple backend.
 // If specifying a number <= 0, 1 is defaulted to
-func NewDummyBackend(numBins uint) Backend {
+func NewDummyBackend(auth Credential, numBins uint) Backend {
 	if numBins <= 0 {
 		numBins = 1
 	}
@@ -95,7 +97,8 @@ func NewDummyBackend(numBins uint) Backend {
 	newDummy := DummyBackend{
 		idLookup:   idLookup,
 		components: components,
-		bins:       make([]DummyBin, numBins)}
+		bins:       make([]DummyBin, numBins),
+		auth:       auth}
 
 	// Let's make 10 bins
 	for i := range newDummy.bins {
