@@ -172,7 +172,7 @@ func replGrep(s []string, b backends.Backend) {
 
 func replMove(args []string, b backends.Backend) {
 	if len(args) != 2 {
-		fmt.Println("rm needs exactly 2 arguments.")
+		fmt.Println("mv needs exactly 2 arguments.")
 		return
 	}
 	if id, err := strconv.Atoi(args[0]); err != nil {
