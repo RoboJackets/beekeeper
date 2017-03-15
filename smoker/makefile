@@ -1,7 +1,7 @@
 
 all:
 # hack to get go to cooperate
-	export GOPATH=`pwd` && go install smoker/smoker
+	@export GOPATH=`pwd` && go install smoker/smoker
 
 pretty:
 	export GOPATH=`pwd` && go fmt smoker/...
@@ -12,7 +12,7 @@ clean:
 	rm -r bin/
 
 run: all
-	./bin/smoker
+	@./bin/smoker
 
 r: run
 
