@@ -5,12 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * @author willstuckey
- * @date 3/3/17
+ * @date 3/21/17
  * <p></p>
  */
 @SpringBootApplication
-public class Langstroth {
+public class Langsthroth {
     public static void main(String[] args) {
-        SpringApplication.run(Langstroth.class, args);
+        SpringApplication.run(Langsthroth.class, args);
     }
 }
