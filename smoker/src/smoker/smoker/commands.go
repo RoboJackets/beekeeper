@@ -21,6 +21,9 @@ func initCommands() {
 	commands["dump"] = replDump
 	commands["d"] = replDump
 
+	commands["bins"] = replBins
+	commands["b"] = replBins
+
 	commands["grep"] = replGrep
 	commands["g"] = replGrep
 
@@ -75,6 +78,7 @@ List of Commands:`)
 	fmt.Fprintln(w, "(r)m <ID> [<ID>, ...]\tDeletes one or more components, by ID.")
 	fmt.Fprintln(w, "(m)v <ID> <BIN>\tMoves <ID> to <BIN> if possible.")
 	fmt.Fprintln(w, "(u)pdate <ID> <COUNT>\tUpdates the count of ID to COUNT.")
+	fmt.Fprintln(w, "(b)ins\tPrints a list of all bins available.")
 	fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
 	fmt.Fprintln(w, "(s)can\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
 	w.Flush()
@@ -97,6 +101,13 @@ func replDump(s []string, b backends.Backend) {
 		fmt.Println("No data is present.")
 	}
 	printDump(c)
+}
+
+func replBins(s []string, b backends.Backend) {
+	allBins := b.GetAllBinNames();
+	for i, _ := range allBins {
+		fmt.Println(allBins[i])
+	}
 }
 
 func replScan(s []string, b backends.Backend) {

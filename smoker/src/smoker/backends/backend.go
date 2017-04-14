@@ -16,6 +16,8 @@ type Backend interface {
 	GeneralSearch(string) []Component
 	// Removes a component, and errors if not present.
 	RemoveComponent(Component) error
+	// Returns a list of all bin names
+	GetAllBinNames() []string
 }
 
 type Bin interface {

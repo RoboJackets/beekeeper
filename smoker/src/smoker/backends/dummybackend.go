@@ -104,7 +104,7 @@ func NewDummyBackend(auth Credential, numBins uint) Backend {
 	for i := range newDummy.bins {
 		mp := make(map[Component]bool)
 		newDummy.bins[i] = DummyBin{
-			name:  "A" + strconv.Itoa(i),
+			name:  "A" + "0" + strconv.Itoa(i),
 			parts: mp,
 			// TODO stop hard coding this
 			capacity: 3}
@@ -130,6 +130,14 @@ func (b *DummyBackend) GetAllComponents() []Component {
 		}
 	}
 	return comp
+}
+
+func (b *DummyBackend) GetAllBinNames() []string {
+	bins := make([]string, 0)
+	for _, bin := range b.bins {
+		bins = append(bins, bin.GetName())
+	}
+	return bins
 }
 
 // Adds the component to the bin we think is the most suitable
