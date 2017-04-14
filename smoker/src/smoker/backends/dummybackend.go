@@ -144,7 +144,7 @@ func (b *DummyBackend) GetAllBinNames() []string {
 func (b *DummyBackend) AddComponent(comp Component) (Bin, error) {
 	var selectedBin *DummyBin
 	for _, v := range b.bins {
-		if v.capacity > uint(len(v.parts)) {
+		if v.GetCapacity() > uint(len(v.parts)) {
 			selectedBin = &v
 			break
 		}
@@ -170,8 +170,8 @@ func (b *DummyBackend) MoveComponent(comp Component, name string) error {
 	}
 
 	for _, bin := range b.bins {
-		if bin.name == name {
-			if bin.capacity > uint(len(bin.parts)) {
+		if bin.GetName() == name {
+			if bin.GetCapacity() > uint(len(bin.parts)) {
 				comp.GetBin().deletePart(comp)
 				comp.setBin(&bin)
 				bin.parts[comp] = true

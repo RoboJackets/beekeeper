@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/fatih/color"
-	"github.com/getwe/figlet4go"
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/fatih/color"
+	"github.com/getwe/figlet4go"
 	"os"
 	"smoker/backends"
 	"strconv"
@@ -105,7 +105,7 @@ func replDump(s []string, b backends.Backend) {
 }
 
 func replBins(s []string, b backends.Backend) {
-	allBins := b.GetAllBinNames();
+	allBins := b.GetAllBinNames()
 	for i, _ := range allBins {
 		fmt.Println(allBins[i])
 	}

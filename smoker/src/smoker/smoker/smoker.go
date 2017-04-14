@@ -2,8 +2,8 @@ package main
 
 import (
 	"bufio"
-	"github.com/fatih/color"
 	"fmt"
+	"github.com/fatih/color"
 	"os"
 	"smoker/backends"
 	"strings"
