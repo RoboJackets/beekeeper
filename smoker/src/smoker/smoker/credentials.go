@@ -1,7 +1,7 @@
 package main
 
 import (
-	"color"
+	"github.com/fatih/color"
 	"fmt"
 	"golang.org/x/crypto/ssh/terminal"
 	"smoker/backends"

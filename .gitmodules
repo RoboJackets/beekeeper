@@ -4,3 +4,9 @@
 [submodule "smoker/src/golang.org/x/crypto"]
 	path = smoker/src/golang.org/x/crypto
 	url = git@github.com:golang/crypto.git
+[submodule "smoker/src/github.com/fatih/color"]
+	path = smoker/src/github.com/fatih/color
+	url = https://github.com/fatih/color.git
+[submodule "smoker/src/github.com/getwe/figlet4go"]
+	path = smoker/src/github.com/getwe/figlet4go
+	url = https://github.com/getwe/figlet4go.git

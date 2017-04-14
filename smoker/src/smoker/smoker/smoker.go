@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"color"
+	"github.com/fatih/color"
 	"fmt"
 	"os"
 	"smoker/backends"

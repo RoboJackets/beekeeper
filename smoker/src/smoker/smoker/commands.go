@@ -1,7 +1,8 @@
 package main
 
 import (
-	"color"
+	"github.com/fatih/color"
+	"github.com/getwe/figlet4go"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -118,6 +119,9 @@ func replScan(s []string, b backends.Backend) {
 			break
 		} else if idStr == "quit" || idStr == "q" {
 			break
+		} else if len(idStr) == 0 {
+			// Blank line, keep going
+			continue
 		}
 
 		idInt, err := strconv.ParseUint(idStr, 10, 32)
@@ -163,6 +167,9 @@ func replScan(s []string, b backends.Backend) {
 
 func printBin(s string) {
 	c := color.New(color.FgWhite).Add(color.Bold)
+	ascii := figlet4go.NewAsciiRender()
+	renderStr, _ := ascii.Render(s)
+	c.Println(renderStr)
 	c.Println(s)
 }
 
