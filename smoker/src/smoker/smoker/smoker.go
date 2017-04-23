@@ -82,7 +82,7 @@ func readUint(prompt string, errorMsg string) (uint, error) {
 	}
 }
 
-func readStringLoop(prompt string) (string, error) {
+func readStringLoopRaw(prompt string, allowEmpty bool) (string, error) {
 	for {
 		result, err := readRaw(prompt)
 		if err != nil {
@@ -91,13 +91,17 @@ func readStringLoop(prompt string) (string, error) {
 			return "", err
 		} else if result == "quit" || result == "q" {
 			return "", errors.New("User quit")
-		} else if len(result) == 0 {
+		} else if len(result) == 0 && allowEmpty {
 			// Blank line, keep going
 			continue
 		}
 
 		return result, nil
 	}
+}
+
+func readStringLoop(prompt string) (string, error) {
+	return readStringLoopRaw(prompt, true)
 }
 
 func readRaw(s string) (string, error) {

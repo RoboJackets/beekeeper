@@ -112,9 +112,10 @@ func replBins(s []string, b backends.Backend) {
 	}
 }
 
+// TODO refactor replScan to use shared read functions
 func replScan(s []string, b backends.Backend) {
 	for {
-		idInt, err := readUint("Scan an item or enter an ID> ", IDWarning)
+		idInt, err := readUint("scan> ", IDWarning)
 		if err != nil {
 			break
 		}
@@ -123,7 +124,11 @@ func replScan(s []string, b backends.Backend) {
 		component, bin, err := b.LookupId(componentId)
 		if err != nil {
 			// Add a new item
-			comp := genComponent(componentId)
+			comp, err := genComponent(componentId)
+			if err != nil {
+				fmt.Println("Abort adding component.")
+				continue
+			}
 			bin, err = b.AddComponent(comp)
 			if err != nil {
 				fmt.Println("Failed adding part: " + err.Error())
@@ -134,8 +139,11 @@ func replScan(s []string, b backends.Backend) {
 			printGenericInfo(comp, bin)
 
 			for {
-				newBin, err := readRaw("Move part?> ")
+				newBin, err := readRaw("move?> ")
 				if err != nil || len(newBin) == 0 || newBin == "quit" || newBin == "q" {
+					if err != nil {
+						fmt.Println()
+					}
 					// we got nothing to move to...
 					break
 				}
@@ -317,29 +325,18 @@ func replWelcome(args []string, b backends.Backend) {
 }
 
 // Queries the user for the info required to make a component
-func genComponent(id uint) backends.Component {
+func genComponent(id uint) (backends.Component, error) {
 	// Need Count, Name, and Manufacturer
-	name, _ := readRaw("Enter Part Name> ")
-	man, _ := readRaw("Enter Part Manufacturer> ")
-	countI := parseUint("Enter Part Count> ")
-
-	return backends.NewComponent(id, countI, name, man)
-}
-
-// Parse uint with internal error checking (loop on fail)
-func parseUint(s string) uint {
-	var err error = errors.New("dummy error")
-	var countI uint
-	var i uint64
-	for err != nil {
-		countS, _ := readRaw(s)
-		i, err = strconv.ParseUint(countS, 10, 32)
-		countI = uint(i)
-		if err != nil {
-			fmt.Println("'" + countS + "' is not a valid number.")
-		}
+	if name, err := readStringLoopRaw("Part Name> ", false); err != nil {
+		return nil, errors.New("Error Reading Component.")
+	} else if man, err := readStringLoopRaw("Part Manufacturer> ", false); err != nil {
+		return nil, errors.New("Error Reading Component.")
+	} else if countI, _ := readUint("Part Count> ", CountWarning); err != nil {
+		return nil, errors.New("Error Reading Component.")
+	} else {
+		// Success
+		return backends.NewComponent(id, countI, name, man), nil
 	}
-	return countI
 }
 
 func replQuit([]string, backends.Backend) {
