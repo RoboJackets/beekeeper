@@ -78,9 +78,9 @@ List of Commands:`)
 	fmt.Fprintln(w, "(w)elcome\tPrints a overview message, helpful to beginners.")
 	fmt.Fprintln(w, "(q)uit\tQuit's the current repl mode. If at top level, quit.")
 	fmt.Fprintln(w, "(d)ump\tDumps information for all components.")
-	fmt.Fprintln(w, "(r)m <ID> [<ID>, ...]\tDeletes one or more components, by ID.")
-	fmt.Fprintln(w, "(m)v <ID> <BIN>\tMoves <ID> to <BIN> if possible.")
-	fmt.Fprintln(w, "(u)pdate <ID> <COUNT>\tUpdates the count of ID to COUNT.")
+	fmt.Fprintln(w, "(r)m* <ID> [<ID>, ...]\tDeletes one or more components, by ID.")
+	fmt.Fprintln(w, "(m)v* <ID> <BIN>\tMoves <ID> to <BIN> if possible.")
+	fmt.Fprintln(w, "(u)pdate* <ID> <COUNT>\tUpdates the count of ID to COUNT.")
 	fmt.Fprintln(w, "(b)ins\tPrints a list of all bins available.")
 	fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
 	fmt.Fprintln(w, "(s)can*\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
@@ -192,21 +192,43 @@ func replGrep(s []string, b backends.Backend) {
 }
 
 func replMove(args []string, b backends.Backend) {
-	if len(args) != 2 {
-		fmt.Println("mv needs exactly 2 arguments.")
-		return
+	if len(args) == 0 {
+		// Interactive mode
+		for {
+			if id, err := readUint("move ID> ", IDWarning); err != nil {
+				// User quit, or error reading
+				return
+			} else if component, _, err := b.LookupId(id); err != nil {
+				fmt.Println("'" + strconv.Itoa(int(id)) + "' " + IDWarning)
+			} else {
+				READBIN:
+				if bin, err := readStringLoop("bin> "); err != nil {
+					return
+				} else if err := b.MoveComponent(component, bin); err != nil {
+					fmt.Println("Error: " + err.Error())
+					// Read the bin again!
+					goto READBIN
+				}
+			}
+			// (else) success!
+		}
+	} else {
+		if len(args) != 2 {
+			fmt.Println("mv needs 2 or 0 arguments.")
+			return
+		}
+		if id, err := strconv.Atoi(args[0]); err != nil {
+			fmt.Println("'" + args[0] + "' is not a valid ID!")
+			return
+		} else if component, _, err := b.LookupId(uint(id)); err != nil {
+			fmt.Println("No component with id '" + strconv.Itoa(id) + "' was found.")
+			return
+		} else if err := b.MoveComponent(component, args[1]); err != nil {
+			fmt.Println("Error: " + err.Error())
+			return
+		}
+		// We completed successfully!
 	}
-	if id, err := strconv.Atoi(args[0]); err != nil {
-		fmt.Println("'" + args[0] + "' is not a valid ID!")
-		return
-	} else if component, _, err := b.LookupId(uint(id)); err != nil {
-		fmt.Println("No component with id '" + strconv.Itoa(id) + "' was found.")
-		return
-	} else if err := b.MoveComponent(component, args[1]); err != nil {
-		fmt.Println("Error: " + err.Error())
-		return
-	}
-	// We completed successfully!
 }
 
 const ErrorDeleteID string = "[INTERNAL] An internal error occurred when deleting an element. Partial deletion probably occured."
@@ -214,7 +236,7 @@ func replRm(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
-			if id, err := readUint("delete ID> ", IDWarning); err != nil {
+			if id, err := readUint("rm ID> ", IDWarning); err != nil {
 				// User quit, or error reading
 				return
 			} else if component, _, err := b.LookupId(id); err != nil {
@@ -248,20 +270,38 @@ func replRm(args []string, b backends.Backend) {
 	}
 }
 
+// Function for updating the count of a component
 func replUpdate(args []string, b backends.Backend) {
-	if len(args) != 2 {
-		fmt.Println("Update must take 2 arguments.")
-		return
-	}
-
-	if i, err := strconv.ParseUint(args[0], 10, 32); err != nil {
-		fmt.Println("'" + args[0] + "' is not a valid ID.")
-	} else if component, _, err := b.LookupId(uint(i)); err != nil {
-		fmt.Println("'" + args[0] + "' is not a present component.")
-	} else if j, err := strconv.ParseUint(args[1], 10, 32); err != nil {
-		fmt.Println("'" + args[1] + "' is not a valid count.")
+	if len(args) == 0 {
+		// Interactive mode
+		for {
+			if id, err := readUint("update ID> ", IDWarning); err != nil {
+				// User quit, or error reading
+				return
+			} else if component, _, err := b.LookupId(id); err != nil {
+				fmt.Println("'" + strconv.Itoa(int(id)) + "' " + IDWarning)
+			} else if count, err := readUint("count> ", CountWarning); err != nil {
+				return
+			} else {
+				// TODO consider relative counts
+				component.SetCount(uint(count))
+			}
+		}
 	} else {
-		component.SetCount(uint(j))
+		if len(args) != 2 {
+			fmt.Println("Update must take 2 or no arguments.")
+			return
+		}
+
+		if i, err := strconv.ParseUint(args[0], 10, 32); err != nil {
+			fmt.Println("'" + args[0] + "' is not a valid ID.")
+		} else if component, _, err := b.LookupId(uint(i)); err != nil {
+			fmt.Println("'" + args[0] + "' is not a present component.")
+		} else if j, err := strconv.ParseUint(args[1], 10, 32); err != nil {
+			fmt.Println("'" + args[1] + "' is not a valid count.")
+		} else {
+			component.SetCount(uint(j))
+		}
 	}
 }
 

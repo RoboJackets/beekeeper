@@ -55,6 +55,7 @@ func intro() {
 }
 
 const IDWarning string = "was not a valid ID."
+const CountWarning string = "was not a valid count."
 // Reads uints (ID's and other stuff) interactively from the user in a loop. error on quit
 // Pick one of the warnings above or craft your own for the second string value.
 func readUint(prompt string, errorMsg string) (uint, error) {
@@ -77,6 +78,24 @@ func readUint(prompt string, errorMsg string) (uint, error) {
 			continue
 		}
 		return uint(idInt), nil
+	}
+}
+
+func readStringLoop(prompt string) (string, error) {
+	for {
+		result, err := readRaw(prompt)
+		if err != nil {
+			// Clear line due to ctrl-d
+			fmt.Println()
+			return "", err
+		} else if result == "quit" || result == "q" {
+			return "", errors.New("User quit")
+		} else if len(result) == 0 {
+			// Blank line, keep going
+			continue
+		}
+
+		return result, nil
 	}
 }
 
