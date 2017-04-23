@@ -101,6 +101,7 @@ func replDump(s []string, b backends.Backend) {
 
 	if len(c) == 0 {
 		fmt.Println("No data is present.")
+		return
 	}
 	printDump(c)
 }
@@ -115,7 +116,7 @@ func replBins(s []string, b backends.Backend) {
 // TODO refactor replScan to use shared read functions
 func replScan(s []string, b backends.Backend) {
 	for {
-		idInt, err := readUint("scan> ", IDWarning)
+		idInt, err := readUint("scan*> ", IDWarning)
 		if err != nil {
 			break
 		}
@@ -245,7 +246,7 @@ func replRm(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
-			if id, err := readUint("rm ID> ", IDWarning); err != nil {
+			if id, err := readUint("rm*> ", IDWarning); err != nil {
 				// User quit, or error reading
 				return
 			} else if component, _, err := b.LookupId(id); err != nil {
@@ -284,7 +285,7 @@ func replUpdate(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
-			if id, err := readUint("update ID> ", IDWarning); err != nil {
+			if id, err := readUint("update*> ", IDWarning); err != nil {
 				// User quit, or error reading
 				return
 			} else if component, _, err := b.LookupId(id); err != nil {
