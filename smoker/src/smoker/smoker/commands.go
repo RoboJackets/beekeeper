@@ -13,6 +13,12 @@ import (
 	"text/tabwriter"
 )
 
+// Colors for different prompt
+var scanColor = color.New(color.FgYellow).SprintFunc()
+var countColor = color.New(color.FgGreen).SprintFunc()
+var binColor = color.New(color.FgBlue).SprintFunc()
+var moveColor = binColor
+
 func initCommands() {
 
 	commands = make(map[string]func([]string, backends.Backend))
@@ -59,7 +65,7 @@ func runCommand(prompt string, backend backends.Backend) {
 	}
 
 	if v, p := commands[cmds[0]]; !p {
-		fmt.Println("'" + cmds[0] + "' not found!")
+		fmt.Println("'" + cmds[0] + "' is not a valid command.")
 	} else {
 		v(cmds[1:], backend)
 	}
@@ -116,7 +122,7 @@ func replBins(s []string, b backends.Backend) {
 // TODO refactor replScan to use shared read functions
 func replScan(s []string, b backends.Backend) {
 	for {
-		idInt, err := readUint("scan*> ", IDWarning)
+		idInt, err := readUint(scanColor("scan*> "), IDWarning)
 		if err != nil {
 			break
 		}
@@ -140,7 +146,7 @@ func replScan(s []string, b backends.Backend) {
 			printGenericInfo(comp, bin)
 
 			for {
-				newBin, err := readRaw("move?> ")
+				newBin, err := readRaw(moveColor("move?> "))
 				if err != nil || len(newBin) == 0 || newBin == "quit" || newBin == "q" {
 					if err != nil {
 						fmt.Println()
@@ -204,14 +210,14 @@ func replMove(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
-			if id, err := readUint("move ID> ", IDWarning); err != nil {
+			if id, err := readUint(scanColor("move ID> "), IDWarning); err != nil {
 				// User quit, or error reading
 				return
 			} else if component, _, err := b.LookupId(id); err != nil {
 				fmt.Println("'" + strconv.Itoa(int(id)) + "' " + IDWarning)
 			} else {
 			READBIN:
-				if bin, err := readStringLoop("bin> "); err != nil {
+				if bin, err := readStringLoop(binColor("bin> ")); err != nil {
 					return
 				} else if err := b.MoveComponent(component, bin); err != nil {
 					fmt.Println("Error: " + err.Error())
@@ -246,7 +252,7 @@ func replRm(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
-			if id, err := readUint("rm*> ", IDWarning); err != nil {
+			if id, err := readUint(scanColor("rm*> "), IDWarning); err != nil {
 				// User quit, or error reading
 				return
 			} else if component, _, err := b.LookupId(id); err != nil {
@@ -285,12 +291,12 @@ func replUpdate(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
-			if id, err := readUint("update*> ", IDWarning); err != nil {
+			if id, err := readUint(scanColor("update*> "), IDWarning); err != nil {
 				// User quit, or error reading
 				return
 			} else if component, _, err := b.LookupId(id); err != nil {
 				fmt.Println("'" + strconv.Itoa(int(id)) + "' " + IDWarning)
-			} else if count, err := readUint("count> ", CountWarning); err != nil {
+			} else if count, err := readUint(countColor("count> "), CountWarning); err != nil {
 				return
 			} else {
 				// TODO consider relative counts
@@ -332,7 +338,7 @@ func genComponent(id uint) (backends.Component, error) {
 		return nil, errors.New("Error Reading Component.")
 	} else if man, err := readStringLoopRaw("Part Manufacturer> ", false); err != nil {
 		return nil, errors.New("Error Reading Component.")
-	} else if countI, _ := readUint("Part Count> ", CountWarning); err != nil {
+	} else if countI, _ := readUint(countColor("Part Count> "), CountWarning); err != nil {
 		return nil, errors.New("Error Reading Component.")
 	} else {
 		// Success
