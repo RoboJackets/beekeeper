@@ -260,7 +260,7 @@ func replWelcome(args []string, b backends.Backend) {
 	fmt.Println()
 	fmt.Println("A good place to get started is the 'scan' command, which opens a seperate scanning REPL, allowing you to add new items if available, and print locations of items if found.")
 	fmt.Println()
-	fmt.Println("For documentation, press 'help'")
+	fmt.Println("For documentation, type 'help'")
 }
 
 // Queries the user for the info required to make a component
