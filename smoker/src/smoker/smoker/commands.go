@@ -68,6 +68,8 @@ func runCommand(prompt string, backend backends.Backend) {
 func replHelp([]string, backends.Backend) {
 	fmt.Println(`Welcome to the Smoker Help Page.
 
+Commands with a (*) have a no-args scanning mode.
+
 List of Commands:`)
 	// Observe how the b's and the d's, despite appearing in the
 	// second cell of each line, belong to different columns.
@@ -81,7 +83,7 @@ List of Commands:`)
 	fmt.Fprintln(w, "(u)pdate <ID> <COUNT>\tUpdates the count of ID to COUNT.")
 	fmt.Fprintln(w, "(b)ins\tPrints a list of all bins available.")
 	fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
-	fmt.Fprintln(w, "(s)can\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
+	fmt.Fprintln(w, "(s)can*\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
 	w.Flush()
 }
 
@@ -92,7 +94,6 @@ func printDump(c []backends.Component) {
 		fmt.Fprintln(w, strconv.Itoa(int(v.GetId()))+"\t"+v.GetBin().GetName()+"\t"+v.GetName()+"\t"+v.GetManufacturer()+"\t"+strconv.Itoa(int(v.GetCount()))+"\t")
 	}
 	w.Flush()
-
 }
 
 func replDump(s []string, b backends.Backend) {
@@ -131,7 +132,7 @@ func replScan(s []string, b backends.Backend) {
 		}
 
 		componentId := uint(idInt)
-		_, bin, err := b.LookupId(componentId)
+		component, bin, err := b.LookupId(componentId)
 		if err != nil {
 			// Add a new item
 			comp := genComponent(componentId)
@@ -142,7 +143,7 @@ func replScan(s []string, b backends.Backend) {
 			}
 
 			// Display added part
-			printBin(bin.GetName())
+			printGenericInfo(comp, bin)
 
 			for {
 				newBin, err := readRaw("Move part?> ")
@@ -160,17 +161,27 @@ func replScan(s []string, b backends.Backend) {
 			}
 		} else {
 			// Display found item
-			printBin(bin.GetName())
+			printGenericInfo(component, bin)
 		}
 	}
 }
 
+func printGenericInfo(c backends.Component, b backends.Bin) {
+	w := color.New(color.FgWhite).Add(color.Bold)
+	r := color.New(color.FgGreen).Add(color.Bold)
+	printBin(b.GetName())
+	r.Print("Count:\t")
+	w.Println(strconv.Itoa(int(c.GetCount())))
+}
+
 func printBin(s string) {
-	c := color.New(color.FgWhite).Add(color.Bold)
+	w := color.New(color.FgWhite).Add(color.Bold)
+	r := color.New(color.FgGreen).Add(color.Bold)
 	ascii := figlet4go.NewAsciiRender()
 	renderStr, _ := ascii.Render(s)
-	c.Println(renderStr)
-	c.Println(s)
+	w.Println(renderStr)
+	r.Print("Bin:\t")
+	w.Println(s)
 }
 
 func replMoo(s []string, b backends.Backend) {
