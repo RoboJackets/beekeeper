@@ -25,4 +25,14 @@ linux:
 mac:
 	export GOPATH=`pwd` && GOOS=darwin GOARCH=amd64 go build -o bin/smoker_mac smoker/smoker
 
-multirelease: linux win mac
+netbsd:
+	export GOPATH=`pwd` && GOOS=netbsd GOARCH=amd64 go build -o bin/smoker_netbsd smoker/smoker
+
+openbsd:
+	export GOPATH=`pwd` && GOOS=openbsd GOARCH=amd64 go build -o bin/smoker_openbsd smoker/smoker
+
+# TODO support plan9 (bug golang color library to support it)
+# plan9:
+# 	export GOPATH=`pwd` && GOOS=plan9 GOARCH=amd64 go build -o bin/smoker_plan9 smoker/smoker
+
+multirelease: linux netbsd openbsd win mac
