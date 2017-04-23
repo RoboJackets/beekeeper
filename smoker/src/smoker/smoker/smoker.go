@@ -2,13 +2,13 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"github.com/fatih/color"
 	"os"
 	"smoker/backends"
-	"strings"
-	"errors"
 	"strconv"
+	"strings"
 )
 
 const INTRO_TEXT = `Welcome to Smoker - The superior beekeper client`
@@ -56,6 +56,7 @@ func intro() {
 
 const IDWarning string = "was not a valid ID."
 const CountWarning string = "was not a valid count."
+
 // Reads uints (ID's and other stuff) interactively from the user in a loop. error on quit
 // Pick one of the warnings above or craft your own for the second string value.
 func readUint(prompt string, errorMsg string) (uint, error) {

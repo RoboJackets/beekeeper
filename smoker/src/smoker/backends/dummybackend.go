@@ -93,7 +93,7 @@ func NewDummyBackend(auth Credential, numBins uint) Backend {
 	}
 
 	// TODO remove hard coded number for demo
-	numBins = 2;
+	numBins = 2
 
 	idLookup := make(map[uint]Component)
 	components := make(map[Component]bool)
@@ -115,14 +115,13 @@ func NewDummyBackend(auth Credential, numBins uint) Backend {
 
 	// hardcoded bins for demo
 	newDummy.bins[0] = DummyBin{
-		name:  "C04",
-		parts: make(map[Component]bool),
+		name:     "C04",
+		parts:    make(map[Component]bool),
 		capacity: 3}
 	newDummy.bins[1] = DummyBin{
-		name:  "B05",
-		parts: make(map[Component]bool),
+		name:     "B05",
+		parts:    make(map[Component]bool),
 		capacity: 3}
-
 
 	return &newDummy
 }

@@ -201,7 +201,7 @@ func replMove(args []string, b backends.Backend) {
 			} else if component, _, err := b.LookupId(id); err != nil {
 				fmt.Println("'" + strconv.Itoa(int(id)) + "' " + IDWarning)
 			} else {
-				READBIN:
+			READBIN:
 				if bin, err := readStringLoop("bin> "); err != nil {
 					return
 				} else if err := b.MoveComponent(component, bin); err != nil {
@@ -232,6 +232,7 @@ func replMove(args []string, b backends.Backend) {
 }
 
 const ErrorDeleteID string = "[INTERNAL] An internal error occurred when deleting an element. Partial deletion probably occured."
+
 func replRm(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		// Interactive mode
@@ -243,7 +244,7 @@ func replRm(args []string, b backends.Backend) {
 				fmt.Println("'" + strconv.Itoa(int(id)) + "' " + IDWarning)
 			} else if err := b.RemoveComponent(component); err != nil {
 				fmt.Println(ErrorDeleteID)
-				return;
+				return
 			}
 			// (else) Success!
 		}
