@@ -92,6 +92,9 @@ func NewDummyBackend(auth Credential, numBins uint) Backend {
 		numBins = 1
 	}
 
+	// TODO remove hard coded number for demo
+	numBins = 2;
+
 	idLookup := make(map[uint]Component)
 	components := make(map[Component]bool)
 	newDummy := DummyBackend{
@@ -100,15 +103,26 @@ func NewDummyBackend(auth Credential, numBins uint) Backend {
 		bins:       make([]DummyBin, numBins),
 		auth:       auth}
 
-	// Let's make 10 bins
-	for i := range newDummy.bins {
-		mp := make(map[Component]bool)
-		newDummy.bins[i] = DummyBin{
-			name:  "A" + "0" + strconv.Itoa(i),
-			parts: mp,
-			// TODO stop hard coding this
-			capacity: 3}
-	}
+	// Let's make 10 bins, A00 -> A09
+	// for i := range newDummy.bins {
+	// 	mp := make(map[Component]bool)
+	// 	newDummy.bins[i] = DummyBin{
+	// 		name:  "A" + "0" + strconv.Itoa(i),
+	// 		parts: mp,
+	// 		// TODO stop hard coding this
+	// 		capacity: 3}
+	// }
+
+	// hardcoded bins for demo
+	newDummy.bins[0] = DummyBin{
+		name:  "C04",
+		parts: make(map[Component]bool),
+		capacity: 3}
+	newDummy.bins[1] = DummyBin{
+		name:  "B05",
+		parts: make(map[Component]bool),
+		capacity: 3}
+
 
 	return &newDummy
 }
