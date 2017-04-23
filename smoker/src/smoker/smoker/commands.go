@@ -114,24 +114,12 @@ func replBins(s []string, b backends.Backend) {
 
 func replScan(s []string, b backends.Backend) {
 	for {
-		idStr, err := readRaw("Scan an item or enter an ID> ")
+		idInt, err := readUint("Scan an item or enter an ID> ", IDWarning)
 		if err != nil {
-			fmt.Println()
 			break
-		} else if idStr == "quit" || idStr == "q" {
-			break
-		} else if len(idStr) == 0 {
-			// Blank line, keep going
-			continue
 		}
 
-		idInt, err := strconv.ParseUint(idStr, 10, 32)
-		if err != nil {
-			fmt.Println("'" + idStr + "' was an invalid ID")
-			continue
-		}
-
-		componentId := uint(idInt)
+		componentId := idInt
 		component, bin, err := b.LookupId(componentId)
 		if err != nil {
 			// Add a new item
@@ -221,28 +209,41 @@ func replMove(args []string, b backends.Backend) {
 	// We completed successfully!
 }
 
+const ErrorDeleteID string = "[INTERNAL] An internal error occurred when deleting an element. Partial deletion probably occured."
 func replRm(args []string, b backends.Backend) {
 	if len(args) == 0 {
-		fmt.Println("Input ID values into rm to delete them.")
-		return
-	}
-	components := make([]backends.Component, 0)
-	for _, v := range args {
-		if id, err := strconv.Atoi(v); err != nil {
-			fmt.Println("'" + v + "' is not a valid ID.")
-			return
-		} else if comp, _, err := b.LookupId(uint(id)); err != nil {
-			fmt.Println("'" + v + "' is not a valid ID.")
-			return
-		} else {
-			components = append(components, comp)
+		// Interactive mode
+		for {
+			if id, err := readUint("delete ID> ", IDWarning); err != nil {
+				// User quit, or error reading
+				return
+			} else if component, _, err := b.LookupId(id); err != nil {
+				fmt.Println("'" + strconv.Itoa(int(id)) + "' " + IDWarning)
+			} else if err := b.RemoveComponent(component); err != nil {
+				fmt.Println(ErrorDeleteID)
+				return;
+			}
+			// (else) Success!
 		}
-	}
+	} else {
+		components := make([]backends.Component, 0)
+		for _, v := range args {
+			if id, err := strconv.Atoi(v); err != nil {
+				fmt.Println("'" + v + "' " + IDWarning)
+				return
+			} else if comp, _, err := b.LookupId(uint(id)); err != nil {
+				fmt.Println("'" + v + "' " + IDWarning)
+				return
+			} else {
+				components = append(components, comp)
+			}
+		}
 
-	for _, comp := range components {
-		if err := b.RemoveComponent(comp); err != nil {
-			fmt.Println("[INTERNAL] An internal error occurred when deleting an element. Partial deletion probably occured.")
-			return
+		for _, comp := range components {
+			if err := b.RemoveComponent(comp); err != nil {
+				fmt.Println(ErrorDeleteID)
+				return
+			}
 		}
 	}
 }

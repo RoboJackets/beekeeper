@@ -7,6 +7,8 @@ import (
 	"os"
 	"smoker/backends"
 	"strings"
+	"errors"
+	"strconv"
 )
 
 const INTRO_TEXT = `Welcome to Smoker - The superior beekeper client`
@@ -50,6 +52,32 @@ func intro() {
 
 	fmt.Println()
 	color.Yellow("This software is in heavy development. Please report bugs to RoboJackets/beekeeper")
+}
+
+const IDWarning string = "was not a valid ID."
+// Reads uints (ID's and other stuff) interactively from the user in a loop. error on quit
+// Pick one of the warnings above or craft your own for the second string value.
+func readUint(prompt string, errorMsg string) (uint, error) {
+	for {
+		idStr, err := readRaw(prompt)
+		if err != nil {
+			// Clear line due to ctrl-d
+			fmt.Println()
+			return 0, err
+		} else if idStr == "quit" || idStr == "q" {
+			return 0, errors.New("User quit")
+		} else if len(idStr) == 0 {
+			// Blank line, keep going
+			continue
+		}
+
+		idInt, err := strconv.ParseUint(idStr, 10, 32)
+		if err != nil {
+			fmt.Println("'" + idStr + "' " + errorMsg)
+			continue
+		}
+		return uint(idInt), nil
+	}
 }
 
 func readRaw(s string) (string, error) {
