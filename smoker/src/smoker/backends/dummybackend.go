@@ -117,11 +117,11 @@ func NewDummyBackend(auth Credential, numBins uint) Backend {
 	newDummy.bins[0] = DummyBin{
 		name:     "C04",
 		parts:    make(map[Component]bool),
-		capacity: 3}
+		capacity: 2}
 	newDummy.bins[1] = DummyBin{
 		name:     "B05",
 		parts:    make(map[Component]bool),
-		capacity: 3}
+		capacity: 2}
 
 	return &newDummy
 }
