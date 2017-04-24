@@ -181,6 +181,10 @@ func (b *DummyBackend) MoveComponent(comp Component, name string) error {
 	if comp.GetBin() == nil {
 		return errors.New("Comp is not stored in a bin yet!")
 	}
+	if comp.GetBin().GetName() == name {
+		// We are already in the target bin
+		return nil
+	}
 
 	for _, bin := range b.bins {
 		if bin.GetName() == name {
