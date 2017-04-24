@@ -104,24 +104,24 @@ func NewDummyBackend(auth Credential, numBins uint) Backend {
 		auth:       auth}
 
 	// Let's make 10 bins, A00 -> A09
-	// for i := range newDummy.bins {
-	// 	mp := make(map[Component]bool)
-	// 	newDummy.bins[i] = DummyBin{
-	// 		name:  "A" + "0" + strconv.Itoa(i),
-	// 		parts: mp,
-	// 		// TODO stop hard coding this
-	// 		capacity: 3}
-	// }
+	for i := range newDummy.bins {
+		mp := make(map[Component]bool)
+		newDummy.bins[i] = DummyBin{
+			name:  "A" + "0" + strconv.Itoa(i),
+			parts: mp,
+			// TODO stop hard coding this
+			capacity: 3}
+	}
 
 	// hardcoded bins for demo
-	newDummy.bins[0] = DummyBin{
-		name:     "C04",
-		parts:    make(map[Component]bool),
-		capacity: 2}
-	newDummy.bins[1] = DummyBin{
-		name:     "B05",
-		parts:    make(map[Component]bool),
-		capacity: 2}
+	// newDummy.bins[0] = DummyBin{
+	// 	name:     "C04",
+	// 	parts:    make(map[Component]bool),
+	// 	capacity: 2}
+	// newDummy.bins[1] = DummyBin{
+	// 	name:     "B05",
+	// 	parts:    make(map[Component]bool),
+	// 	capacity: 2}
 
 	return &newDummy
 }
