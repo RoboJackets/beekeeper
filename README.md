@@ -1,4 +1,4 @@
-# beekeeper
+# beekeeper [![CircleCI](https://circleci.com/gh/RoboJackets/beekeeper.svg?style=svg)](https://circleci.com/gh/RoboJackets/beekeeper)
 Acclimating a new generation to high altitudes.
 
 ## Langstroth (Backend API)
