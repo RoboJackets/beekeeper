@@ -14,6 +14,7 @@ jobs:
       - run: git submodule update --init --recursive
       - run: make
       - run: make multirelease
+
   langstroth:
     docker:
       - image: java:8
@@ -21,9 +22,19 @@ jobs:
     steps:
       - checkout:
           path: ~/beekeeper
-      - run: ./gradlew assemble
+
+      - restore_cache:
+          key: langstorth-gradle-{{ checksum "build.gradle" }}
+
+      # build
+      - run: ./gradlew --no-daemon assemble
       # tests
-      - run: ./gradlew check
+      - run: ./gradlew --no-daemon check
+
+      - save_cache:
+          key: langstorth-gradle-{{ checksum "build.gradle" }}
+          paths:
+            - ~/.gradle
 
 workflows:
   version: 2
