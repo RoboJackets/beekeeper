@@ -15,6 +15,6 @@ TODO
 
 ## [Smoker](https://github.com/RoboJackets/beekeeper/tree/master/smoker) (CLI Frontend)
 
-Smoker is the advanced cli frontend to beekeeper, designed for power uses and administrators.
+Smoker is the advanced cli frontend to beekeeper, designed for power users and administrators.
 
 See the [smoker readme](https://github.com/RoboJackets/beekeeper/tree/master/smoker) for more information.
