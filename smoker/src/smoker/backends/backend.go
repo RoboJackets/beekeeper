@@ -41,9 +41,19 @@ type Component interface {
 }
 
 type Credential interface {
+	// Get username
 	GetUsername() string
 	// This is password right now, but it really should be an API key or a hashed version.
 	GetAuth() string
 	// Verify the credentials are good
 	Verify() bool
+}
+
+// TODO add permission levels
+type CredentialManager interface {
+	// Add User
+	AddCredential(Credential)
+	// Remove User
+	RemoveCredential(string)
+	DumpUsers() []string
 }
