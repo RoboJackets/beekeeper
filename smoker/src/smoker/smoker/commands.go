@@ -13,11 +13,16 @@ import (
 	"text/tabwriter"
 )
 
+// * Code
+// ** Variables
 // Colors for different prompt
 var scanColor = color.New(color.FgYellow).SprintFunc()
 var countColor = color.New(color.FgGreen).SprintFunc()
 var binColor = color.New(color.FgBlue).SprintFunc()
+var authColor = color.New(color.FgRed).Add(color.Bold).SprintFunc()
 var moveColor = binColor
+
+// ** Command Definitions
 
 func initCommands() {
 
@@ -48,6 +53,14 @@ func initCommands() {
 
 	commands["moo"] = replMoo
 
+	commands ["login"] = replLogin
+	commands ["useradd"] = replAddUser
+	commands ["adduser"] = replAddUser
+	commands ["userdel"] = replDeleteUser
+	commands ["deluser"] = replDeleteUser
+	commands ["who"] = replListUsers
+	commands ["whoami"] = replWhoAmI
+
 	commands["w"] = replWelcome
 	commands["welcome"] = replWelcome
 
@@ -56,6 +69,7 @@ func initCommands() {
 	commands["q"] = replQuit
 }
 
+// ** High Level Funcs
 // Runs a repl command by keying into the command map
 func runCommand(prompt string, backend backends.Backend) {
 	cmds := strings.Fields(prompt)
@@ -102,6 +116,8 @@ func printDump(c []backends.Component) {
 	w.Flush()
 }
 
+// ** Command Definitions
+// *** Item Commands
 func replDump(s []string, b backends.Backend) {
 	c := b.GetAllComponents()
 
@@ -346,6 +362,93 @@ func genComponent(id uint) (backends.Component, error) {
 	}
 }
 
+// *** Auth Commands
+func replLogin(args []string, b backends.Backend) {
+	if len(args) == 0 {
+		fmt.Println("Please enter your username to login!")
+		return
+	} else if len(args) > 1 {
+		fmt.Println("You didn't enter your password in plaintext did you? You naughty boy.")
+		return
+	} else {
+		user := args[0]
+		password := GetPWs()
+		cred := backends.NewDummyCredential(user, password)
+		err := b.GetCredentialManager().Login(cred)
+		if err != nil {
+			color.Red("Error: " + err.Error())
+		} else {
+			color.Green("Login Successfull!")
+		}
+	}
+}
+
+func replAddUser(args []string, b backends.Backend) {
+	if len(args) == 0 {
+		fmt.Println("Please enter a user to add.")
+		return
+	} else if len(args) > 1 {
+		fmt.Println("You didn't enter a password in plaintext did you? You naughty boy.")
+		return
+	} else {
+		user := args[0]
+		password := GetPWs()
+		cred := backends.NewDummyCredential(user, password)
+		err := b.GetCredentialManager().AddCredential(cred)
+		if err != nil {
+			color.Red("Error: " + err.Error())
+		} else {
+			color.Green("User created!")
+		}
+	}
+}
+
+func replDeleteUser(args []string, b backends.Backend) {
+	if len(args) == 0 {
+		fmt.Println("Please enter a user to delete.")
+		return
+	} else if len(args) > 1 {
+		return
+	} else {
+		answer, _ := readRaw(authColor("u sure bro? (\"yes\")> "))
+		if answer != "yes" {
+			color.Red("Aborting!")
+			return
+		}
+
+		user := args[0]
+		cred := backends.NewDummyCredential(user, "")
+		err := b.GetCredentialManager().RemoveCredential(cred)
+		if err != nil {
+			color.Red("Error: " + err.Error())
+		} else {
+			color.Green("User killed!")
+		}
+	}
+}
+
+func replListUsers(args []string, b backends.Backend) {
+	if len(args) == 0 {
+		users := b.GetCredentialManager().DumpUsers()
+		fmt.Println("Users:")
+		for _, name := range users {
+			fmt.Println(name)
+		}
+	}
+}
+
+func replWhoAmI(args []string, b backends.Backend) {
+	if len(args) == 0 {
+		if user, err := b.GetCredentialManager().CurrentUser(); err != nil {
+			fmt.Println("Error: " + err.Error())
+		} else {
+			fmt.Println(user)
+		}
+	}
+}
+
+
+// *** Misc Commands
 func replQuit([]string, backends.Backend) {
 	os.Exit(0)
 }

@@ -54,7 +54,7 @@ type CredentialManager interface {
 	// Add User
 	AddCredential(Credential) error
 	// Remove User
-	RemoveCredential(string) error
+	RemoveCredential(Credential) error
 	DumpUsers() []string
 	CurrentUser() (string, error)
 	Login(Credential) error

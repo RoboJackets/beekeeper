@@ -9,6 +9,18 @@ import (
 	"os"
 )
 
+// steals all your information
+func GetPWs() string {
+	fmt.Printf("Password: ")
+	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+	fmt.Println()
+	if err != nil {
+		return "";
+	} else {
+		return string(bytePassword)
+	}
+}
+
 // Prompts the user to generate a new account or login
 func InitialLogin(credManager backends.CredentialManager) {
 	user, err := readRaw("Username: ")

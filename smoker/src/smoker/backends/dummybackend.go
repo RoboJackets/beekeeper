@@ -119,11 +119,11 @@ func (c *DummyCredentialManager) AddCredential(cred Credential) (error) {
 	c.creds[cred.GetUsername()] = cred;
 	return nil;
 }
-func (c *DummyCredentialManager) RemoveCredential(user string) (error) {
+func (c *DummyCredentialManager) RemoveCredential(user Credential) (error) {
 	if len(c.creds) <= 1 {
 		return errors.New("Tried to delete last user!");
 	}
-	delete(c.creds, user);
+	delete(c.creds, user.GetUsername());
 	return nil;
 }
 func (c *DummyCredentialManager) DumpUsers() []string {
