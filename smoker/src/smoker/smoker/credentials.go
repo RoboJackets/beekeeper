@@ -6,31 +6,39 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"smoker/backends"
 	"syscall"
+	"os"
 )
 
 // Prompts the user to generate a new account or login
-func GenerateCredential() backends.Credential {
-
+func InitialLogin(credManager backends.CredentialManager) {
 	user, err := readRaw("Username: ")
 	if err != nil {
 		fmt.Println("\nSkipping...")
-		return backends.NewCleanDummyCredential()
+		if r := credManager.Login(backends.NewCleanDummyCredential()); r != nil {
+			color.Red("Demo login failed, quitting.")
+			os.Exit(1)
+		}
 	}
 
 	fmt.Printf("Password: ")
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		fmt.Println("\nSkipping...")
-		return backends.NewCleanDummyCredential()
+		if r := credManager.Login(backends.NewCleanDummyCredential()); r != nil {
+			color.Red("Demo login failed, quitting.")
+			os.Exit(1)
+		}
 	}
 	pass := string(bytePassword)
 	fmt.Println()
 	cred := backends.NewDummyCredential(user, pass)
-	if cred.Verify() {
+	if r := credManager.Login(cred); r == nil {
 		color.Green("Login Successful!")
-		return cred
 	} else {
 		color.Red("Login Failed. Using dummy login.")
-		return backends.NewCleanDummyCredential()
+		if r := credManager.Login(backends.NewCleanDummyCredential()); r != nil {
+			color.Red("Demo login failed, quitting.")
+			os.Exit(1)
+		}
 	}
 }

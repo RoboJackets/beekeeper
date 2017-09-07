@@ -104,11 +104,11 @@ func NewDummyCredential(user, password string) Credential {
 		password: password}
 }
 
-
 // ** DummyCredentialManager
 // Represents a CredentialManager (storing creds)
 type DummyCredentialManager struct {
 	creds map[string]Credential
+	current Credential
 }
 
 func (c *DummyCredentialManager) AddCredential(cred Credential) (error) {
@@ -136,14 +136,35 @@ func (c *DummyCredentialManager) DumpUsers() []string {
 	}
 	return keyList;
 }
-func NewDummyCredentialManager() DummyCredentialManager {
+func (c *DummyCredentialManager) CurrentUser() (string, error) {
+	if c.current == nil {
+		return "", errors.New("No current auth");
+	}
+	return c.current.GetUsername(), nil;
+}
+func (c *DummyCredentialManager) Login(login Credential) error {
+	if candidate, exists := c.creds[login.GetUsername()]; !exists {
+		return errors.New("Username not found!")
+	} else if candidate.GetUsername() != login.GetUsername() ||
+		candidate.GetAuth() != login.GetAuth() {
+		// TODO actually verify things
+		return errors.New("Wrong auth supplied.")
+	} else {
+		c.current = candidate;
+		return nil;
+	}
+}
+// Make a new credmanager with a default credential and no one logged in
+func NewDummyCredentialManager() CredentialManager {
 	creds := make(map[string]Credential);
 	defaultCreds := NewCleanDummyCredential()
 	creds[defaultCreds.GetUsername()] = defaultCreds
-	return DummyCredentialManager{
-		creds: creds}
+	return &DummyCredentialManager{
+		creds: creds,
+		current: nil}
 }
 
+// ** DummyBackend
 type DummyBackend struct {
 	// Map of component ID to component
 	// Use this for most lookups
@@ -153,14 +174,12 @@ type DummyBackend struct {
 	// List of all the bins
 	bins []DummyBin
 
-	auth Credential
 	authManager CredentialManager
 }
 
-// ** DummyBackend
 // Makes a very simple backend.
 // If specifying a number <= 0, 1 is defaulted to
-func NewDummyBackend(auth Credential, numBins uint) Backend {
+func NewDummyBackend(numBins uint) Backend {
 	if numBins <= 0 {
 		numBins = 1
 	}
@@ -174,7 +193,7 @@ func NewDummyBackend(auth Credential, numBins uint) Backend {
 		idLookup:   idLookup,
 		components: components,
 		bins:       make([]DummyBin, numBins),
-		auth:       auth}
+		authManager:  NewDummyCredentialManager()}
 
 	// Let's make 10 bins, A00 -> A09
 	for i := range newDummy.bins {
@@ -198,7 +217,6 @@ func NewDummyBackend(auth Credential, numBins uint) Backend {
 
 	return &newDummy
 }
-
 func NewComponent(id, count uint, name, manufacturer string) Component {
 	return &DummyComponent{
 		id:           id,
@@ -206,7 +224,6 @@ func NewComponent(id, count uint, name, manufacturer string) Component {
 		name:         name,
 		manufacturer: manufacturer}
 }
-
 // Gets all the components in this dummybackend
 func (b *DummyBackend) GetAllComponents() []Component {
 	comp := make([]Component, 0)
@@ -217,7 +234,6 @@ func (b *DummyBackend) GetAllComponents() []Component {
 	}
 	return comp
 }
-
 func (b *DummyBackend) GetAllBinNames() []string {
 	bins := make([]string, 0)
 	for _, bin := range b.bins {
@@ -225,7 +241,6 @@ func (b *DummyBackend) GetAllBinNames() []string {
 	}
 	return bins
 }
-
 // Adds the component to the bin we think is the most suitable
 func (b *DummyBackend) AddComponent(comp Component) (Bin, error) {
 	var selectedBin *DummyBin
@@ -248,7 +263,6 @@ func (b *DummyBackend) AddComponent(comp Component) (Bin, error) {
 	b.components[comp] = true
 	return selectedBin, nil
 }
-
 // Moves a component from it's current bin to a valid one
 func (b *DummyBackend) MoveComponent(comp Component, name string) error {
 	if comp.GetBin() == nil {
@@ -273,7 +287,6 @@ func (b *DummyBackend) MoveComponent(comp Component, name string) error {
 	}
 	return errors.New("Bin '" + name + "' was not found!")
 }
-
 func (b *DummyBackend) LookupId(id uint) (Component, Bin, error) {
 	if component, present := b.idLookup[id]; !present {
 		return nil, nil, errors.New("No component found with that ID.")
@@ -284,7 +297,6 @@ func (b *DummyBackend) LookupId(id uint) (Component, Bin, error) {
 		return component, component.GetBin(), nil
 	}
 }
-
 func (b *DummyBackend) GeneralSearch(s string) []Component {
 	c := make([]Component, 0)
 	// Welcome to the worst inventory system on the planet
@@ -295,7 +307,6 @@ func (b *DummyBackend) GeneralSearch(s string) []Component {
 	}
 	return c
 }
-
 func (b *DummyBackend) RemoveComponent(comp Component) error {
 	if comp.GetBin() == nil {
 		return errors.New("The requested component is not present")
@@ -306,4 +317,7 @@ func (b *DummyBackend) RemoveComponent(comp Component) error {
 		delete(b.components, comp)
 		return nil
 	}
+}
+func (b *DummyBackend) GetCredentialManager() CredentialManager {
+	return b.authManager
 }

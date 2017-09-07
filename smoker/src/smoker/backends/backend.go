@@ -18,6 +18,8 @@ type Backend interface {
 	RemoveComponent(Component) error
 	// Returns a list of all bin names
 	GetAllBinNames() []string
+	// Return a CredentialManager to handle me Auth
+	GetCredentialManager() CredentialManager
 }
 
 type Bin interface {
@@ -45,8 +47,6 @@ type Credential interface {
 	GetUsername() string
 	// This is password right now, but it really should be an API key or a hashed version.
 	GetAuth() string
-	// Verify the credentials are good
-	Verify() bool
 }
 
 // TODO add permission levels
@@ -56,4 +56,6 @@ type CredentialManager interface {
 	// Remove User
 	RemoveCredential(string) error
 	DumpUsers() []string
+	CurrentUser() (string, error)
+	Login(Credential) error
 }
