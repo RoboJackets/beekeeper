@@ -73,6 +73,37 @@ func (c *DummyComponent) MatchStr(s string) bool {
 	return strings.Contains(strings.ToLower(totalStr), strings.ToLower(s))
 }
 
+// Represents a CredentialManager (storing creds)
+type DummyCredentialManager struct {
+	creds map[string]Credential
+}
+
+func (c *DummyCredentialManager) AddCredential(cred Credential) (error) {
+	_, exists := c.creds[cred.GetUsername()]
+	if exists {
+		return errors.New("Username already exists.");
+	}
+	c.creds[cred.GetUsername()] = cred;
+	return nil;
+}
+func (c *DummyCredentialManager) RemoveCredential(user string) (error) {
+	if len(c.creds) <= 1 {
+		return errors.New("Tried to delete last user!");
+	}
+	delete(c.creds, user);
+	return nil;
+}
+func (c *DummyCredentialManager) DumpUsers() []string {
+	keyList := make([]string, len(c.creds))
+
+	i := 0;
+	for key, _ := range c.creds {
+		keyList[i] = key;
+		i++;
+	}
+	return keyList;
+}
+
 type DummyBackend struct {
 	// Map of component ID to component
 	// Use this for most lookups
@@ -83,6 +114,7 @@ type DummyBackend struct {
 	bins []DummyBin
 
 	auth Credential
+	authManager CredentialManager
 }
 
 // Makes a very simple backend.

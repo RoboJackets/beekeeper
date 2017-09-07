@@ -52,8 +52,8 @@ type Credential interface {
 // TODO add permission levels
 type CredentialManager interface {
 	// Add User
-	AddCredential(Credential)
+	AddCredential(Credential) error
 	// Remove User
-	RemoveCredential(string)
+	RemoveCredential(string) error
 	DumpUsers() []string
 }
