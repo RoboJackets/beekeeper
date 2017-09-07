@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// * Dummy Type Definitions
+// ** DummyBin
 // Represents a bin
 type DummyBin struct {
 	name     string
@@ -34,6 +36,7 @@ func (b *DummyBin) deletePart(c Component) {
 	delete(b.parts, c)
 }
 
+// ** DummyComponent
 // Represents a component.
 // Probably will be used in all future backends
 type DummyComponent struct {
@@ -73,6 +76,36 @@ func (c *DummyComponent) MatchStr(s string) bool {
 	return strings.Contains(strings.ToLower(totalStr), strings.ToLower(s))
 }
 
+
+// ** DummyCredential
+type PasswordCredential struct {
+	username, password string
+}
+
+func (p *PasswordCredential) GetUsername() string {
+	return p.username
+}
+func (p *PasswordCredential) GetAuth() string {
+	return p.password
+}
+
+func (p *PasswordCredential) Verify() bool {
+	// TODO implement for real
+	return p.username == "user" && p.password == "password"
+}
+
+func NewCleanDummyCredential() Credential {
+	return NewDummyCredential("user", "password")
+}
+
+func NewDummyCredential(user, password string) Credential {
+	return &PasswordCredential{
+		username: user,
+		password: password}
+}
+
+
+// ** DummyCredentialManager
 // Represents a CredentialManager (storing creds)
 type DummyCredentialManager struct {
 	creds map[string]Credential
@@ -103,6 +136,13 @@ func (c *DummyCredentialManager) DumpUsers() []string {
 	}
 	return keyList;
 }
+func NewDummyCredentialManager() DummyCredentialManager {
+	creds := make(map[string]Credential);
+	defaultCreds := NewCleanDummyCredential()
+	creds[defaultCreds.GetUsername()] = defaultCreds
+	return DummyCredentialManager{
+		creds: creds}
+}
 
 type DummyBackend struct {
 	// Map of component ID to component
@@ -117,6 +157,7 @@ type DummyBackend struct {
 	authManager CredentialManager
 }
 
+// ** DummyBackend
 // Makes a very simple backend.
 // If specifying a number <= 0, 1 is defaulted to
 func NewDummyBackend(auth Credential, numBins uint) Backend {
