@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh/terminal"
+	"os"
 	"smoker/backends"
 	"syscall"
-	"os"
 )
 
 // steals all your information
@@ -15,7 +15,7 @@ func GetPWs() string {
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	fmt.Println()
 	if err != nil {
-		return "";
+		return ""
 	} else {
 		return string(bytePassword)
 	}

@@ -76,7 +76,6 @@ func (c *DummyComponent) MatchStr(s string) bool {
 	return strings.Contains(strings.ToLower(totalStr), strings.ToLower(s))
 }
 
-
 // ** DummyCredential
 type PasswordCredential struct {
 	username, password string
@@ -107,40 +106,40 @@ func NewDummyCredential(user, password string) Credential {
 // ** DummyCredentialManager
 // Represents a CredentialManager (storing creds)
 type DummyCredentialManager struct {
-	creds map[string]Credential
+	creds   map[string]Credential
 	current Credential
 }
 
-func (c *DummyCredentialManager) AddCredential(cred Credential) (error) {
+func (c *DummyCredentialManager) AddCredential(cred Credential) error {
 	_, exists := c.creds[cred.GetUsername()]
 	if exists {
-		return errors.New("Username already exists.");
+		return errors.New("Username already exists.")
 	}
-	c.creds[cred.GetUsername()] = cred;
-	return nil;
+	c.creds[cred.GetUsername()] = cred
+	return nil
 }
-func (c *DummyCredentialManager) RemoveCredential(user Credential) (error) {
+func (c *DummyCredentialManager) RemoveCredential(user Credential) error {
 	if len(c.creds) <= 1 {
-		return errors.New("Tried to delete last user!");
+		return errors.New("Tried to delete last user!")
 	}
-	delete(c.creds, user.GetUsername());
-	return nil;
+	delete(c.creds, user.GetUsername())
+	return nil
 }
 func (c *DummyCredentialManager) DumpUsers() []string {
 	keyList := make([]string, len(c.creds))
 
-	i := 0;
+	i := 0
 	for key, _ := range c.creds {
-		keyList[i] = key;
-		i++;
+		keyList[i] = key
+		i++
 	}
-	return keyList;
+	return keyList
 }
 func (c *DummyCredentialManager) CurrentUser() (string, error) {
 	if c.current == nil {
-		return "", errors.New("No current auth");
+		return "", errors.New("No current auth")
 	}
-	return c.current.GetUsername(), nil;
+	return c.current.GetUsername(), nil
 }
 func (c *DummyCredentialManager) Login(login Credential) error {
 	if candidate, exists := c.creds[login.GetUsername()]; !exists {
@@ -150,17 +149,18 @@ func (c *DummyCredentialManager) Login(login Credential) error {
 		// TODO actually verify things
 		return errors.New("Wrong auth supplied.")
 	} else {
-		c.current = candidate;
-		return nil;
+		c.current = candidate
+		return nil
 	}
 }
+
 // Make a new credmanager with a default credential and no one logged in
 func NewDummyCredentialManager() CredentialManager {
-	creds := make(map[string]Credential);
+	creds := make(map[string]Credential)
 	defaultCreds := NewCleanDummyCredential()
 	creds[defaultCreds.GetUsername()] = defaultCreds
 	return &DummyCredentialManager{
-		creds: creds,
+		creds:   creds,
 		current: nil}
 }
 
@@ -190,10 +190,10 @@ func NewDummyBackend(numBins uint) Backend {
 	idLookup := make(map[uint]Component)
 	components := make(map[Component]bool)
 	newDummy := DummyBackend{
-		idLookup:   idLookup,
-		components: components,
-		bins:       make([]DummyBin, numBins),
-		authManager:  NewDummyCredentialManager()}
+		idLookup:    idLookup,
+		components:  components,
+		bins:        make([]DummyBin, numBins),
+		authManager: NewDummyCredentialManager()}
 
 	// Let's make 10 bins, A00 -> A09
 	for i := range newDummy.bins {
@@ -224,6 +224,7 @@ func NewComponent(id, count uint, name, manufacturer string) Component {
 		name:         name,
 		manufacturer: manufacturer}
 }
+
 // Gets all the components in this dummybackend
 func (b *DummyBackend) GetAllComponents() []Component {
 	comp := make([]Component, 0)
@@ -241,6 +242,7 @@ func (b *DummyBackend) GetAllBinNames() []string {
 	}
 	return bins
 }
+
 // Adds the component to the bin we think is the most suitable
 func (b *DummyBackend) AddComponent(comp Component) (Bin, error) {
 	var selectedBin *DummyBin
@@ -263,6 +265,7 @@ func (b *DummyBackend) AddComponent(comp Component) (Bin, error) {
 	b.components[comp] = true
 	return selectedBin, nil
 }
+
 // Moves a component from it's current bin to a valid one
 func (b *DummyBackend) MoveComponent(comp Component, name string) error {
 	if comp.GetBin() == nil {

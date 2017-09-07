@@ -53,13 +53,13 @@ func initCommands() {
 
 	commands["moo"] = replMoo
 
-	commands ["login"] = replLogin
-	commands ["useradd"] = replAddUser
-	commands ["adduser"] = replAddUser
-	commands ["userdel"] = replDeleteUser
-	commands ["deluser"] = replDeleteUser
-	commands ["who"] = replListUsers
-	commands ["whoami"] = replWhoAmI
+	commands["login"] = replLogin
+	commands["useradd"] = replAddUser
+	commands["adduser"] = replAddUser
+	commands["userdel"] = replDeleteUser
+	commands["deluser"] = replDeleteUser
+	commands["who"] = replListUsers
+	commands["whoami"] = replWhoAmI
 
 	commands["w"] = replWelcome
 	commands["welcome"] = replWelcome
@@ -446,7 +446,6 @@ func replWhoAmI(args []string, b backends.Backend) {
 		}
 	}
 }
-
 
 // *** Misc Commands
 func replQuit([]string, backends.Backend) {
