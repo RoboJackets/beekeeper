@@ -465,7 +465,6 @@ func replDeleteUser(args []string, b backends.Backend) {
 }
 
 func replListUsers(args []string, b backends.Backend) {
-	// TODO move this to an 'admincheck' method
 	if !checkAdmin(b) {
 		return
 	}
