@@ -79,6 +79,7 @@ func (c *DummyComponent) MatchStr(s string) bool {
 // ** DummyCredential
 type PasswordCredential struct {
 	username, password string
+	level              CredentialLevel
 }
 
 func (p *PasswordCredential) GetUsername() string {
@@ -87,20 +88,22 @@ func (p *PasswordCredential) GetUsername() string {
 func (p *PasswordCredential) GetAuth() string {
 	return p.password
 }
-
-func (p *PasswordCredential) Verify() bool {
-	// TODO implement for real
-	return p.username == "user" && p.password == "password"
+func (p *PasswordCredential) GetCredentialLevel() CredentialLevel {
+	return p.level
 }
 
 func NewCleanDummyCredential() Credential {
-	return NewDummyCredential("user", "password")
+	return NewDummyCredential("user", "password", Admin)
 }
 
-func NewDummyCredential(user, password string) Credential {
+func NewDummyCredential(user, password string, level CredentialLevel) Credential {
+	if level == Unknown {
+		level = DEFAULT_CRED
+	}
 	return &PasswordCredential{
 		username: user,
-		password: password}
+		password: password,
+		level:    level}
 }
 
 // ** DummyCredentialManager
@@ -135,11 +138,11 @@ func (c *DummyCredentialManager) DumpUsers() []string {
 	}
 	return keyList
 }
-func (c *DummyCredentialManager) CurrentUser() (string, error) {
+func (c *DummyCredentialManager) CurrentUser() (Credential, error) {
 	if c.current == nil {
-		return "", errors.New("No current auth")
+		return nil, errors.New("No current auth")
 	}
-	return c.current.GetUsername(), nil
+	return c.current, nil
 }
 func (c *DummyCredentialManager) Login(login Credential) error {
 	if candidate, exists := c.creds[login.GetUsername()]; !exists {

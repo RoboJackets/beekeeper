@@ -116,6 +116,22 @@ func printDump(c []backends.Component) {
 	w.Flush()
 }
 
+func checkPermissions(b backends.Backend, level backends.CredentialLevel) bool {
+	if user, err := b.GetCredentialManager().CurrentUser(); err != nil {
+		fmt.Println("No user logged in!")
+		return false
+	} else if user.GetCredentialLevel() < level {
+		color.Red("Access Denied.")
+		color.Red("Need Level: " + level.String())
+		return false
+	}
+	return true
+}
+
+func checkAdmin(b backends.Backend) bool {
+	return checkPermissions(b, backends.Admin)
+}
+
 // ** Command Definitions
 // *** Item Commands
 func replDump(s []string, b backends.Backend) {
@@ -373,7 +389,7 @@ func replLogin(args []string, b backends.Backend) {
 	} else {
 		user := args[0]
 		password := GetPWs()
-		cred := backends.NewDummyCredential(user, password)
+		cred := backends.NewDummyCredential(user, password, backends.Unknown)
 		err := b.GetCredentialManager().Login(cred)
 		if err != nil {
 			color.Red("Error: " + err.Error())
@@ -384,6 +400,9 @@ func replLogin(args []string, b backends.Backend) {
 }
 
 func replAddUser(args []string, b backends.Backend) {
+	if !checkAdmin(b) {
+		return
+	}
 	if len(args) == 0 {
 		fmt.Println("Please enter a user to add.")
 		return
@@ -393,9 +412,24 @@ func replAddUser(args []string, b backends.Backend) {
 	} else {
 		user := args[0]
 		password := GetPWs()
-		cred := backends.NewDummyCredential(user, password)
-		err := b.GetCredentialManager().AddCredential(cred)
+
+		fmt.Println("Permission Table:")
+		for i := backends.FIRST_CRED; i <= backends.LAST_CRED; i++ {
+			fmt.Println(strconv.Itoa(int(i)) + ": " + i.String())
+		}
+
+		tmpNum, err := readUint(scanColor("permission index: "), "Please enter a valid permission level")
+		var num backends.CredentialLevel
 		if err != nil {
+			num = backends.DEFAULT_CRED
+		} else if tmpNum > uint(int(backends.LAST_CRED)) {
+			num = backends.LAST_CRED
+		} else {
+			num = backends.CredentialLevel(tmpNum)
+		}
+
+		cred := backends.NewDummyCredential(user, password, num)
+		if err := b.GetCredentialManager().AddCredential(cred); err != nil {
 			color.Red("Error: " + err.Error())
 		} else {
 			color.Green("User created!")
@@ -404,6 +438,9 @@ func replAddUser(args []string, b backends.Backend) {
 }
 
 func replDeleteUser(args []string, b backends.Backend) {
+	if !checkAdmin(b) {
+		return
+	}
 	if len(args) == 0 {
 		fmt.Println("Please enter a user to delete.")
 		return
@@ -417,7 +454,7 @@ func replDeleteUser(args []string, b backends.Backend) {
 		}
 
 		user := args[0]
-		cred := backends.NewDummyCredential(user, "")
+		cred := backends.NewDummyCredential(user, "", backends.Unknown)
 		err := b.GetCredentialManager().RemoveCredential(cred)
 		if err != nil {
 			color.Red("Error: " + err.Error())
@@ -428,6 +465,10 @@ func replDeleteUser(args []string, b backends.Backend) {
 }
 
 func replListUsers(args []string, b backends.Backend) {
+	// TODO move this to an 'admincheck' method
+	if !checkAdmin(b) {
+		return
+	}
 	if len(args) == 0 {
 		users := b.GetCredentialManager().DumpUsers()
 		fmt.Println("Users:")
@@ -442,7 +483,7 @@ func replWhoAmI(args []string, b backends.Backend) {
 		if user, err := b.GetCredentialManager().CurrentUser(); err != nil {
 			fmt.Println("Error: " + err.Error())
 		} else {
-			fmt.Println(user)
+			fmt.Println(user.GetUsername() + ": " + user.GetCredentialLevel().String())
 		}
 	}
 }

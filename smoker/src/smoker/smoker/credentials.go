@@ -43,7 +43,7 @@ func InitialLogin(credManager backends.CredentialManager) {
 	}
 	pass := string(bytePassword)
 	fmt.Println()
-	cred := backends.NewDummyCredential(user, pass)
+	cred := backends.NewDummyCredential(user, pass, backends.Unknown)
 	if r := credManager.Login(cred); r == nil {
 		color.Green("Login Successful!")
 	} else {

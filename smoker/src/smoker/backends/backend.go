@@ -42,20 +42,39 @@ type Component interface {
 	MatchStr(string) bool
 }
 
+// Enum definition for CredentialLevel
+type CredentialLevel int
+
+const (
+	// run `make stringer` when updating this (go is garbage)
+	Unknown CredentialLevel = iota
+	User
+	Admin
+)
+
+// GoLang is a flaming pile of trash
+const FIRST_CRED CredentialLevel = Unknown
+const LAST_CRED CredentialLevel = Admin
+const DEFAULT_CRED CredentialLevel = User
+
+// GoLang is worse than writing in raw x86
+//go:generate stringer -type=CredentialLevel
+
 type Credential interface {
 	// Get username
 	GetUsername() string
 	// This is password right now, but it really should be an API key or a hashed version.
 	GetAuth() string
+
+	GetCredentialLevel() CredentialLevel
 }
 
-// TODO add permission levels
 type CredentialManager interface {
 	// Add User
 	AddCredential(Credential) error
 	// Remove User
 	RemoveCredential(Credential) error
 	DumpUsers() []string
-	CurrentUser() (string, error)
+	CurrentUser() (Credential, error)
 	Login(Credential) error
 }
