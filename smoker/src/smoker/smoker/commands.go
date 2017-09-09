@@ -482,7 +482,7 @@ func replDeleteUser(args []string, b backends.Backend) {
 
 func replListUsers(args []string, b backends.Backend) {
 	if users, err := b.GetCredentialManager().DumpUsers(); err != nil {
-		fmt.Println("Error: " + err.Error())
+		color.Red("Error: " + err.Error())
 	} else {
 		fmt.Println("Users:")
 		for _, name := range users {
@@ -506,7 +506,7 @@ func replChangeAuth(args []string, b backends.Backend) {
 	password := GetPWs()
 	cred := backends.NewDummyCredential(user, password, backends.Unknown)
 	if err := b.GetCredentialManager().UpdateAuth(cred, password); err != nil {
-		fmt.Println("Error: " + err.Error())
+		color.Red("Error: " + err.Error())
 	} else {
 		fmt.Println("Changed password of " + user)
 	}
@@ -528,7 +528,7 @@ func replChangePermissionLevel(args []string, b backends.Backend) {
 	perm := getPermissionIndex()
 	cred := backends.NewDummyCredential(user, "", perm)
 	if err := b.GetCredentialManager().UpdatePermission(cred, perm); err != nil {
-		fmt.Println("Error: " + err.Error())
+		color.Red("Error: " + err.Error())
 	} else {
 		fmt.Println("Changed permission level of " + user)
 	}
@@ -537,7 +537,7 @@ func replChangePermissionLevel(args []string, b backends.Backend) {
 func replWhoAmI(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		if user, err := b.GetCredentialManager().CurrentUser(); err != nil {
-			fmt.Println("Error: " + err.Error())
+			color.Red("Error: " + err.Error())
 		} else {
 			fmt.Println(user.GetUsername() + ": " + user.GetCredentialLevel().String())
 		}

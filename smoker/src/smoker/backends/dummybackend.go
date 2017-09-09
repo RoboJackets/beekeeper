@@ -151,17 +151,17 @@ func (c *DummyCredentialManager) RemoveCredential(user Credential) error {
 		return errors.New("No logged in user.")
 	} else if currentUser.GetCredentialLevel() < USER_ADMIN {
 		return errors.New(NOPERM_ADMIN)
-	}
-
-	if len(c.creds) <= 1 {
-		return errors.New("Tried to delete last user!")
-	}
-	if toDel, exists := c.creds[user.GetUsername()]; !exists {
-		return errors.New("No user with name: " + user.GetUsername())
-	} else if toDel.GetCredentialLevel() >= Admin && c.numOfAdministrators() <= 1 {
-		return errors.New("Attempted to delete last administrator!")
-	} else if toDel.GetUsername() == user.GetUsername() {
-		return errors.New("Attempted to delete currently logged in user")
+	} else {
+		if len(c.creds) <= 1 {
+			return errors.New("Tried to delete last user!")
+		}
+		if toDel, exists := c.creds[user.GetUsername()]; !exists {
+			return errors.New("No user with name: " + user.GetUsername())
+		} else if toDel.GetCredentialLevel() >= Admin && c.numOfAdministrators() <= 1 {
+			return errors.New("Attempted to delete last administrator!")
+		} else if currentUser.GetUsername() == user.GetUsername() {
+			return errors.New("Attempted to delete currently logged in user")
+		}
 	}
 
 	delete(c.creds, user.GetUsername())
