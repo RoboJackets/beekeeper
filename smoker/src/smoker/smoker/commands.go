@@ -87,26 +87,53 @@ func runCommand(prompt string, backend backends.Backend) {
 	}
 }
 
-func replHelp([]string, backends.Backend) {
-	fmt.Println(`Welcome to the Smoker Help Page.
+func replHelp(args []string, b backends.Backend) {
+
+	// UserAdmin Help page
+	if (len(args) >= 1 && args[0] == "useradmin") {
+		fmt.Println(`This manual page covers user managment commands.
+
+These include deletion/creation of users and setting user permissions.
+Most of these commands require admin access, but some (eg: whoami) do not.
+
+List of Commands:`)
+		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
+		fmt.Fprintln(w, "login <USER>\tLogs into the specified user.")
+		fmt.Fprintln(w, "useradd <USER>\tAdds the specified user to the system.")
+		fmt.Fprintln(w, "userdel <USER>\tRemoves the specified user to the system.")
+		fmt.Fprintln(w, "who\tLists all users and permissions on the system.")
+		fmt.Fprintln(w, "whoami\tLists the current user and permission level.")
+		fmt.Fprintln(w, "passwd (<USER>)\tChanges the password for a user. With no args, this is the current user.")
+		fmt.Fprintln(w, "chperm <USER>\tChanges permissions for a user.")
+		w.Flush()
+		return
+	} else {
+		// Generic Help Page
+		fmt.Println(`Welcome to the Smoker Help Page.
 
 Commands with a (*) have a no-args scanning mode.
 
 List of Commands:`)
-	// Observe how the b's and the d's, despite appearing in the
-	// second cell of each line, belong to different columns.
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
-	fmt.Fprintln(w, "(h)elp\tPrints this help message.")
-	fmt.Fprintln(w, "(w)elcome\tPrints a overview message, helpful to beginners.")
-	fmt.Fprintln(w, "(q)uit\tQuit's the current repl mode. If at top level, quit.")
-	fmt.Fprintln(w, "(d)ump\tDumps information for all components.")
-	fmt.Fprintln(w, "(r)m* <ID> [<ID>, ...]\tDeletes one or more components, by ID.")
-	fmt.Fprintln(w, "(m)v* <ID> <BIN>\tMoves <ID> to <BIN> if possible.")
-	fmt.Fprintln(w, "(u)pdate* <ID> <COUNT>\tUpdates the count of ID to COUNT.")
-	fmt.Fprintln(w, "(b)ins\tPrints a list of all bins available.")
-	fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
-	fmt.Fprintln(w, "(s)can*\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
-	w.Flush()
+		// Observe how the b's and the d's, despite appearing in the
+		// second cell of each line, belong to different columns.
+		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
+		fmt.Fprintln(w, "(h)elp\tPrints this help message.")
+		fmt.Fprintln(w, "(w)elcome\tPrints a overview message, helpful to beginners.")
+		fmt.Fprintln(w, "(q)uit\tQuit's the current repl mode. If at top level, quit.")
+		fmt.Fprintln(w, "(d)ump\tDumps information for all components.")
+		fmt.Fprintln(w, "(r)m* <ID> [<ID>, ...]\tDeletes one or more components, by ID.")
+		fmt.Fprintln(w, "(m)v* <ID> <BIN>\tMoves <ID> to <BIN> if possible.")
+		fmt.Fprintln(w, "(u)pdate* <ID> <COUNT>\tUpdates the count of ID to COUNT.")
+		fmt.Fprintln(w, "(b)ins\tPrints a list of all bins available.")
+		fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
+		fmt.Fprintln(w, "(s)can*\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
+		w.Flush()
+		fmt.Println("")
+		fmt.Println("Additional pages:")
+		fmt.Println("\t\t\thelp useradmin")
+	}
+
+
 }
 
 func printDump(c []backends.Component) {
