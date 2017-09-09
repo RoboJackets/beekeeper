@@ -56,6 +56,7 @@ const (
 const FIRST_CRED CredentialLevel = Unknown
 const LAST_CRED CredentialLevel = Admin
 const DEFAULT_CRED CredentialLevel = User
+const USER_ADMIN CredentialLevel = Admin
 
 // GoLang is worse than writing in raw x86
 //go:generate stringer -type=CredentialLevel
@@ -67,6 +68,9 @@ type Credential interface {
 	GetAuth() string
 
 	GetCredentialLevel() CredentialLevel
+
+	setAuth(string) error
+	setCredentialLevel(CredentialLevel) error
 }
 
 type CredentialManager interface {
@@ -74,7 +78,11 @@ type CredentialManager interface {
 	AddCredential(Credential) error
 	// Remove User
 	RemoveCredential(Credential) error
-	DumpUsers() []string
+	// Updates password for a credential
+	UpdateAuth(Credential, string) error
+	// Updates permission level for a credential
+	UpdatePermission(Credential, CredentialLevel) error
+	DumpUsers() ([]Credential, error)
 	CurrentUser() (Credential, error)
 	Login(Credential) error
 }

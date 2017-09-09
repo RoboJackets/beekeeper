@@ -60,6 +60,8 @@ func initCommands() {
 	commands["deluser"] = replDeleteUser
 	commands["who"] = replListUsers
 	commands["whoami"] = replWhoAmI
+	commands["passwd"] = replChangeAuth
+	commands["chperm"] = replChangePermissionLevel
 
 	commands["w"] = replWelcome
 	commands["welcome"] = replWelcome
@@ -114,22 +116,6 @@ func printDump(c []backends.Component) {
 		fmt.Fprintln(w, strconv.Itoa(int(v.GetId()))+"\t"+v.GetBin().GetName()+"\t"+v.GetName()+"\t"+v.GetManufacturer()+"\t"+strconv.Itoa(int(v.GetCount()))+"\t")
 	}
 	w.Flush()
-}
-
-func checkPermissions(b backends.Backend, level backends.CredentialLevel) bool {
-	if user, err := b.GetCredentialManager().CurrentUser(); err != nil {
-		fmt.Println("No user logged in!")
-		return false
-	} else if user.GetCredentialLevel() < level {
-		color.Red("Access Denied.")
-		color.Red("Need Level: " + level.String())
-		return false
-	}
-	return true
-}
-
-func checkAdmin(b backends.Backend) bool {
-	return checkPermissions(b, backends.Admin)
 }
 
 // ** Command Definitions
@@ -399,10 +385,27 @@ func replLogin(args []string, b backends.Backend) {
 	}
 }
 
-func replAddUser(args []string, b backends.Backend) {
-	if !checkAdmin(b) {
-		return
+func printPermissionTable() {
+	fmt.Println("Permission Table:")
+	for i := backends.FIRST_CRED; i <= backends.LAST_CRED; i++ {
+		fmt.Println(strconv.Itoa(int(i)) + ": " + i.String())
 	}
+}
+
+func getPermissionIndex() backends.CredentialLevel {
+	tmpNum, err := readUint(scanColor("permission index: "), "Please enter a valid permission level")
+	var num backends.CredentialLevel
+	if err != nil {
+		num = backends.DEFAULT_CRED
+	} else if tmpNum > uint(int(backends.LAST_CRED)) {
+		num = backends.LAST_CRED
+	} else {
+		num = backends.CredentialLevel(tmpNum)
+	}
+	return num
+}
+
+func replAddUser(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		fmt.Println("Please enter a user to add.")
 		return
@@ -413,20 +416,9 @@ func replAddUser(args []string, b backends.Backend) {
 		user := args[0]
 		password := GetPWs()
 
-		fmt.Println("Permission Table:")
-		for i := backends.FIRST_CRED; i <= backends.LAST_CRED; i++ {
-			fmt.Println(strconv.Itoa(int(i)) + ": " + i.String())
-		}
+		printPermissionTable()
 
-		tmpNum, err := readUint(scanColor("permission index: "), "Please enter a valid permission level")
-		var num backends.CredentialLevel
-		if err != nil {
-			num = backends.DEFAULT_CRED
-		} else if tmpNum > uint(int(backends.LAST_CRED)) {
-			num = backends.LAST_CRED
-		} else {
-			num = backends.CredentialLevel(tmpNum)
-		}
+		num := getPermissionIndex()
 
 		cred := backends.NewDummyCredential(user, password, num)
 		if err := b.GetCredentialManager().AddCredential(cred); err != nil {
@@ -438,9 +430,6 @@ func replAddUser(args []string, b backends.Backend) {
 }
 
 func replDeleteUser(args []string, b backends.Backend) {
-	if !checkAdmin(b) {
-		return
-	}
 	if len(args) == 0 {
 		fmt.Println("Please enter a user to delete.")
 		return
@@ -465,15 +454,56 @@ func replDeleteUser(args []string, b backends.Backend) {
 }
 
 func replListUsers(args []string, b backends.Backend) {
-	if !checkAdmin(b) {
-		return
-	}
-	if len(args) == 0 {
-		users := b.GetCredentialManager().DumpUsers()
+	if users, err := b.GetCredentialManager().DumpUsers(); err != nil {
+		fmt.Println("Error: " + err.Error())
+	} else {
 		fmt.Println("Users:")
 		for _, name := range users {
-			fmt.Println(name)
+			fmt.Println(name.GetUsername()  + ": " + name.GetCredentialLevel().String())
 		}
+	}
+}
+
+func replChangeAuth(args []string, b backends.Backend) {
+	var user string
+	if len(args) == 0 {
+		if cred, err := b.GetCredentialManager().CurrentUser(); err != nil {
+			fmt.Println("No User logged in!")
+			return
+		} else {
+			user = cred.GetUsername()
+		}
+	} else {
+		user = args[0]
+	}
+	password := GetPWs()
+	cred := backends.NewDummyCredential(user, password, backends.Unknown)
+	if err := b.GetCredentialManager().UpdateAuth(cred, password); err != nil {
+		fmt.Println("Error: " + err.Error())
+	} else {
+		fmt.Println("Changed password of " + user)
+	}
+}
+
+func replChangePermissionLevel(args []string, b backends.Backend) {
+	var user string
+	if len(args) == 0 {
+		if cred, err := b.GetCredentialManager().CurrentUser(); err != nil {
+			fmt.Println("No User logged in!")
+			return
+		} else {
+			user = cred.GetUsername()
+		}
+	} else {
+		user = args[0]
+	}
+	printPermissionTable()
+	perm := getPermissionIndex()
+	cred := backends.NewDummyCredential(user, "", perm)
+	if err := b.GetCredentialManager().UpdatePermission(cred, perm); err != nil {
+		fmt.Println("Error: " + err.Error())
+	} else {
+		fmt.Println("Changed permission level of " + user)
 	}
 }
 

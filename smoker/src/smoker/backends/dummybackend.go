@@ -91,6 +91,14 @@ func (p *PasswordCredential) GetAuth() string {
 func (p *PasswordCredential) GetCredentialLevel() CredentialLevel {
 	return p.level
 }
+func (p *PasswordCredential) setAuth(auth string) error {
+	p.password = auth
+	return nil
+}
+func (p *PasswordCredential) setCredentialLevel(cred CredentialLevel) error {
+	p.level = cred
+	return nil
+}
 
 func NewCleanDummyCredential() Credential {
 	return NewDummyCredential("user", "password", Admin)
@@ -113,7 +121,14 @@ type DummyCredentialManager struct {
 	current Credential
 }
 
+var NOPERM_ADMIN string = "Insufficient Permissions. Need: " + USER_ADMIN.String()
+
 func (c *DummyCredentialManager) AddCredential(cred Credential) error {
+	if currentUser, err := c.CurrentUser(); err != nil {
+		return errors.New("No logged in user.")
+	} else if currentUser.GetCredentialLevel() < USER_ADMIN {
+		return errors.New(NOPERM_ADMIN)
+	}
 	_, exists := c.creds[cred.GetUsername()]
 	if exists {
 		return errors.New("Username already exists.")
@@ -122,21 +137,32 @@ func (c *DummyCredentialManager) AddCredential(cred Credential) error {
 	return nil
 }
 func (c *DummyCredentialManager) RemoveCredential(user Credential) error {
+	if currentUser, err := c.CurrentUser(); err != nil {
+		return errors.New("No logged in user.")
+	} else if currentUser.GetCredentialLevel() < USER_ADMIN {
+		return errors.New(NOPERM_ADMIN)
+	}
+
 	if len(c.creds) <= 1 {
 		return errors.New("Tried to delete last user!")
 	}
 	delete(c.creds, user.GetUsername())
 	return nil
 }
-func (c *DummyCredentialManager) DumpUsers() []string {
-	keyList := make([]string, len(c.creds))
+func (c *DummyCredentialManager) DumpUsers() ([]Credential, error) {
+	if currentUser, err := c.CurrentUser(); err != nil {
+		return nil, errors.New("No logged in user.")
+	} else if currentUser.GetCredentialLevel() < USER_ADMIN {
+		return nil, errors.New(NOPERM_ADMIN)
+	}
 
+	valList := make([]Credential, len(c.creds))
 	i := 0
-	for key, _ := range c.creds {
-		keyList[i] = key
+	for _, val := range c.creds {
+		valList[i] = val
 		i++
 	}
-	return keyList
+	return valList, nil
 }
 func (c *DummyCredentialManager) CurrentUser() (Credential, error) {
 	if c.current == nil {
@@ -153,6 +179,42 @@ func (c *DummyCredentialManager) Login(login Credential) error {
 		return errors.New("Wrong auth supplied.")
 	} else {
 		c.current = candidate
+		return nil
+	}
+}
+func (c *DummyCredentialManager) UpdateAuth(cred Credential, auth string) error {
+	if candidate, exists := c.creds[cred.GetUsername()]; !exists {
+		return errors.New("Username not found!")
+	} else {
+		if currentUser, err := c.CurrentUser(); err == nil {
+			if currentUser.GetUsername() != cred.GetUsername() &&
+				currentUser.GetCredentialLevel() < USER_ADMIN {
+				// If we are not changing our creds and we are not admin, abort.
+				return errors.New(NOPERM_ADMIN)
+			}
+		} else {
+			return errors.New("No logged in user.")
+		}
+		if err := candidate.setAuth(auth); err != nil {
+			return err
+		}
+		return nil
+	}
+}
+func (c *DummyCredentialManager) UpdatePermission(cred Credential, auth CredentialLevel) error {
+	if candidate, exists := c.creds[cred.GetUsername()]; !exists {
+		return errors.New("Username not found!")
+	} else {
+		if currentUser, err := c.CurrentUser(); err == nil {
+			if currentUser.GetUsername() != cred.GetUsername() &&
+				currentUser.GetCredentialLevel() < USER_ADMIN {
+				// If we are not changing our creds and we are not admin, abort.
+				return errors.New(NOPERM_ADMIN)
+			}
+		}
+		if err := candidate.setCredentialLevel(auth); err != nil {
+			return err
+		}
 		return nil
 	}
 }
