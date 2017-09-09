@@ -136,6 +136,16 @@ func (c *DummyCredentialManager) AddCredential(cred Credential) error {
 	c.creds[cred.GetUsername()] = cred
 	return nil
 }
+// Determines the current number of admins (highest privleges)
+func (c *DummyCredentialManager) numOfAdministrators() uint {
+	var count uint = 0
+	for _, cred := range c.creds {
+		if cred.GetCredentialLevel() >= Admin {
+			count++
+		}
+	}
+	return count
+}
 func (c *DummyCredentialManager) RemoveCredential(user Credential) error {
 	if currentUser, err := c.CurrentUser(); err != nil {
 		return errors.New("No logged in user.")
@@ -146,6 +156,14 @@ func (c *DummyCredentialManager) RemoveCredential(user Credential) error {
 	if len(c.creds) <= 1 {
 		return errors.New("Tried to delete last user!")
 	}
+	if toDel, exists := c.creds[user.GetUsername()]; !exists {
+		return errors.New("No user with name: " + user.GetUsername())
+	} else if toDel.GetCredentialLevel() >= Admin && c.numOfAdministrators() <= 1 {
+		return errors.New("Attempted to delete last administrator!")
+	} else if toDel.GetUsername() == user.GetUsername() {
+		return errors.New("Attempted to delete currently logged in user")
+	}
+
 	delete(c.creds, user.GetUsername())
 	return nil
 }
@@ -212,6 +230,10 @@ func (c *DummyCredentialManager) UpdatePermission(cred Credential, auth Credenti
 				return errors.New(NOPERM_ADMIN)
 			}
 		}
+		if candidate.GetCredentialLevel() >= Admin && c.numOfAdministrators() <= 1 {
+			return errors.New("Attempted to change permissions of last administrator!")
+		}
+
 		if err := candidate.setCredentialLevel(auth); err != nil {
 			return err
 		}
