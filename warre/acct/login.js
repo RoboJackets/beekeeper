@@ -29,7 +29,7 @@ function page_init() {
 	//redirect to index if already authenticated
 	//TODO there should probably be a redirect source cookie
 	if (__is_authenticated()) {
-		window.location.replace("/users/preferences.html");
+		window.location.assign("../users/profile.html");
 		return;
 	}
 
@@ -37,7 +37,7 @@ function page_init() {
 
 	$("#login_button").click(function () {
 		if (__authenticate($("#email_input").val(), $("#passwd_input").val())) {
-			window.location.replace("/user/preferences.html");
+			window.location.assign("../user/profile.html");
 		} else {
 			alert("invalid login creds");
 		}
