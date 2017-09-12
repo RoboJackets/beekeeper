@@ -29,11 +29,10 @@ func main() {
 	initCommands()
 	color.Red("WARNING: Using DUMMY Backend. Your data will not be stored.")
 
-	// Get auth credentials
-	auth := GenerateCredential()
-
 	// Make our dummy backend
-	backend := backends.NewDummyBackend(auth, 10)
+	backend := backends.NewDummyBackend(10)
+	credManager := backend.GetCredentialManager()
+	InitialLogin(credManager)
 
 	quit := false
 	for !quit {

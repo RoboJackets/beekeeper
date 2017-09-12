@@ -18,6 +18,8 @@ type Backend interface {
 	RemoveComponent(Component) error
 	// Returns a list of all bin names
 	GetAllBinNames() []string
+	// Return a CredentialManager to handle me Auth
+	GetCredentialManager() CredentialManager
 }
 
 type Bin interface {
@@ -40,10 +42,47 @@ type Component interface {
 	MatchStr(string) bool
 }
 
+// Enum definition for CredentialLevel
+type CredentialLevel int
+
+const (
+	// run `make stringer` when updating this (go is garbage)
+	Unknown CredentialLevel = iota
+	User
+	Admin
+)
+
+// GoLang is a flaming pile of trash
+const FIRST_CRED CredentialLevel = Unknown
+const LAST_CRED CredentialLevel = Admin
+const DEFAULT_CRED CredentialLevel = User
+const USER_ADMIN CredentialLevel = Admin
+
+// GoLang is worse than writing in raw x86
+//go:generate stringer -type=CredentialLevel
+
 type Credential interface {
+	// Get username
 	GetUsername() string
 	// This is password right now, but it really should be an API key or a hashed version.
 	GetAuth() string
-	// Verify the credentials are good
-	Verify() bool
+
+	GetCredentialLevel() CredentialLevel
+
+	setAuth(string) error
+	setCredentialLevel(CredentialLevel) error
+}
+
+type CredentialManager interface {
+	// Add User
+	AddCredential(Credential) error
+	// Remove User
+	RemoveCredential(Credential) error
+	// Updates password for a credential
+	UpdateAuth(Credential, string) error
+	// Updates permission level for a credential
+	UpdatePermission(Credential, CredentialLevel) error
+	DumpUsers() ([]Credential, error)
+	CurrentUser() (Credential, error)
+	Login(Credential) error
 }

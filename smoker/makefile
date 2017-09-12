@@ -1,10 +1,14 @@
 
-all:
 # hack to get go to cooperate
+all:
 	@export GOPATH=`pwd` && go install smoker/smoker
 
 pretty:
 	export GOPATH=`pwd` && go fmt smoker/...
+
+# Run to generate enums (you need go stringer for this to be installed?!?!?!)
+stringer:
+	export GOPATH=`pwd` && go generate smoker/backends
 
 fmt: pretty
 

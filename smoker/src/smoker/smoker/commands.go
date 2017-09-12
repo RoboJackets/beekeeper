@@ -13,11 +13,16 @@ import (
 	"text/tabwriter"
 )
 
+// * Code
+// ** Variables
 // Colors for different prompt
 var scanColor = color.New(color.FgYellow).SprintFunc()
 var countColor = color.New(color.FgGreen).SprintFunc()
 var binColor = color.New(color.FgBlue).SprintFunc()
+var authColor = color.New(color.FgRed).Add(color.Bold).SprintFunc()
 var moveColor = binColor
+
+// ** Command Definitions
 
 func initCommands() {
 
@@ -48,6 +53,16 @@ func initCommands() {
 
 	commands["moo"] = replMoo
 
+	commands["login"] = replLogin
+	commands["useradd"] = replAddUser
+	commands["adduser"] = replAddUser
+	commands["userdel"] = replDeleteUser
+	commands["deluser"] = replDeleteUser
+	commands["who"] = replListUsers
+	commands["whoami"] = replWhoAmI
+	commands["passwd"] = replChangeAuth
+	commands["chperm"] = replChangePermissionLevel
+
 	commands["w"] = replWelcome
 	commands["welcome"] = replWelcome
 
@@ -56,6 +71,7 @@ func initCommands() {
 	commands["q"] = replQuit
 }
 
+// ** High Level Funcs
 // Runs a repl command by keying into the command map
 func runCommand(prompt string, backend backends.Backend) {
 	cmds := strings.Fields(prompt)
@@ -71,26 +87,53 @@ func runCommand(prompt string, backend backends.Backend) {
 	}
 }
 
-func replHelp([]string, backends.Backend) {
-	fmt.Println(`Welcome to the Smoker Help Page.
+func replHelp(args []string, b backends.Backend) {
+
+	// UserAdmin Help page
+	if (len(args) >= 1 && args[0] == "useradmin") {
+		fmt.Println(`This manual page covers user managment commands.
+
+These include deletion/creation of users and setting user permissions.
+Most of these commands require admin access, but some (eg: whoami) do not.
+
+List of Commands:`)
+		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
+		fmt.Fprintln(w, "login <USER>\tLogs into the specified user.")
+		fmt.Fprintln(w, "useradd <USER>\tAdds the specified user to the system.")
+		fmt.Fprintln(w, "userdel <USER>\tRemoves the specified user to the system.")
+		fmt.Fprintln(w, "who\tLists all users and permissions on the system.")
+		fmt.Fprintln(w, "whoami\tLists the current user and permission level.")
+		fmt.Fprintln(w, "passwd (<USER>)\tChanges the password for a user. With no args, this is the current user.")
+		fmt.Fprintln(w, "chperm <USER>\tChanges permissions for a user.")
+		w.Flush()
+		return
+	} else {
+		// Generic Help Page
+		fmt.Println(`Welcome to the Smoker Help Page.
 
 Commands with a (*) have a no-args scanning mode.
 
 List of Commands:`)
-	// Observe how the b's and the d's, despite appearing in the
-	// second cell of each line, belong to different columns.
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
-	fmt.Fprintln(w, "(h)elp\tPrints this help message.")
-	fmt.Fprintln(w, "(w)elcome\tPrints a overview message, helpful to beginners.")
-	fmt.Fprintln(w, "(q)uit\tQuit's the current repl mode. If at top level, quit.")
-	fmt.Fprintln(w, "(d)ump\tDumps information for all components.")
-	fmt.Fprintln(w, "(r)m* <ID> [<ID>, ...]\tDeletes one or more components, by ID.")
-	fmt.Fprintln(w, "(m)v* <ID> <BIN>\tMoves <ID> to <BIN> if possible.")
-	fmt.Fprintln(w, "(u)pdate* <ID> <COUNT>\tUpdates the count of ID to COUNT.")
-	fmt.Fprintln(w, "(b)ins\tPrints a list of all bins available.")
-	fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
-	fmt.Fprintln(w, "(s)can*\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
-	w.Flush()
+		// Observe how the b's and the d's, despite appearing in the
+		// second cell of each line, belong to different columns.
+		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
+		fmt.Fprintln(w, "(h)elp\tPrints this help message.")
+		fmt.Fprintln(w, "(w)elcome\tPrints a overview message, helpful to beginners.")
+		fmt.Fprintln(w, "(q)uit\tQuit's the current repl mode. If at top level, quit.")
+		fmt.Fprintln(w, "(d)ump\tDumps information for all components.")
+		fmt.Fprintln(w, "(r)m* <ID> [<ID>, ...]\tDeletes one or more components, by ID.")
+		fmt.Fprintln(w, "(m)v* <ID> <BIN>\tMoves <ID> to <BIN> if possible.")
+		fmt.Fprintln(w, "(u)pdate* <ID> <COUNT>\tUpdates the count of ID to COUNT.")
+		fmt.Fprintln(w, "(b)ins\tPrints a list of all bins available.")
+		fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
+		fmt.Fprintln(w, "(s)can*\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
+		w.Flush()
+		fmt.Println("")
+		fmt.Println("Additional pages:")
+		fmt.Println("\t\t\thelp useradmin")
+	}
+
+
 }
 
 func printDump(c []backends.Component) {
@@ -102,6 +145,8 @@ func printDump(c []backends.Component) {
 	w.Flush()
 }
 
+// ** Command Definitions
+// *** Item Commands
 func replDump(s []string, b backends.Backend) {
 	c := b.GetAllComponents()
 
@@ -346,6 +391,160 @@ func genComponent(id uint) (backends.Component, error) {
 	}
 }
 
+// *** Auth Commands
+func replLogin(args []string, b backends.Backend) {
+	if len(args) == 0 {
+		fmt.Println("Please enter your username to login!")
+		return
+	} else if len(args) > 1 {
+		fmt.Println("You didn't enter your password in plaintext did you? You naughty boy.")
+		return
+	} else {
+		user := args[0]
+		password := GetPWs()
+		cred := backends.NewDummyCredential(user, password, backends.Unknown)
+		err := b.GetCredentialManager().Login(cred)
+		if err != nil {
+			color.Red("Error: " + err.Error())
+		} else {
+			color.Green("Login Successfull!")
+		}
+	}
+}
+
+func printPermissionTable() {
+	fmt.Println("Permission Table:")
+	for i := backends.FIRST_CRED; i <= backends.LAST_CRED; i++ {
+		fmt.Println(strconv.Itoa(int(i)) + ": " + i.String())
+	}
+}
+
+func getPermissionIndex() backends.CredentialLevel {
+	tmpNum, err := readUint(scanColor("permission index: "), "Please enter a valid permission level")
+	var num backends.CredentialLevel
+	if err != nil {
+		num = backends.DEFAULT_CRED
+	} else if tmpNum > uint(int(backends.LAST_CRED)) {
+		num = backends.LAST_CRED
+	} else {
+		num = backends.CredentialLevel(tmpNum)
+	}
+	return num
+}
+
+func replAddUser(args []string, b backends.Backend) {
+	if len(args) == 0 {
+		fmt.Println("Please enter a user to add.")
+		return
+	} else if len(args) > 1 {
+		fmt.Println("You didn't enter a password in plaintext did you? You naughty boy.")
+		return
+	} else {
+		user := args[0]
+		password := GetPWs()
+
+		printPermissionTable()
+
+		num := getPermissionIndex()
+
+		cred := backends.NewDummyCredential(user, password, num)
+		if err := b.GetCredentialManager().AddCredential(cred); err != nil {
+			color.Red("Error: " + err.Error())
+		} else {
+			color.Green("User created!")
+		}
+	}
+}
+
+func replDeleteUser(args []string, b backends.Backend) {
+	if len(args) == 0 {
+		fmt.Println("Please enter a user to delete.")
+		return
+	} else if len(args) > 1 {
+		return
+	} else {
+		answer, _ := readRaw(authColor("u sure bro? (\"yes\")> "))
+		if answer != "yes" {
+			color.Red("Aborting!")
+			return
+		}
+
+		user := args[0]
+		cred := backends.NewDummyCredential(user, "", backends.Unknown)
+		err := b.GetCredentialManager().RemoveCredential(cred)
+		if err != nil {
+			color.Red("Error: " + err.Error())
+		} else {
+			color.Green("User killed!")
+		}
+	}
+}
+
+func replListUsers(args []string, b backends.Backend) {
+	if users, err := b.GetCredentialManager().DumpUsers(); err != nil {
+		color.Red("Error: " + err.Error())
+	} else {
+		fmt.Println("Users:")
+		for _, name := range users {
+			fmt.Println(name.GetUsername()  + ": " + name.GetCredentialLevel().String())
+		}
+	}
+}
+
+func replChangeAuth(args []string, b backends.Backend) {
+	var user string
+	if len(args) == 0 {
+		if cred, err := b.GetCredentialManager().CurrentUser(); err != nil {
+			fmt.Println("No User logged in!")
+			return
+		} else {
+			user = cred.GetUsername()
+		}
+	} else {
+		user = args[0]
+	}
+	password := GetPWs()
+	cred := backends.NewDummyCredential(user, password, backends.Unknown)
+	if err := b.GetCredentialManager().UpdateAuth(cred, password); err != nil {
+		color.Red("Error: " + err.Error())
+	} else {
+		fmt.Println("Changed password of " + user)
+	}
+}
+
+func replChangePermissionLevel(args []string, b backends.Backend) {
+	var user string
+	if len(args) == 0 {
+		if cred, err := b.GetCredentialManager().CurrentUser(); err != nil {
+			fmt.Println("No User logged in!")
+			return
+		} else {
+			user = cred.GetUsername()
+		}
+	} else {
+		user = args[0]
+	}
+	printPermissionTable()
+	perm := getPermissionIndex()
+	cred := backends.NewDummyCredential(user, "", perm)
+	if err := b.GetCredentialManager().UpdatePermission(cred, perm); err != nil {
+		color.Red("Error: " + err.Error())
+	} else {
+		fmt.Println("Changed permission level of " + user)
+	}
+}
+
+func replWhoAmI(args []string, b backends.Backend) {
+	if len(args) == 0 {
+		if user, err := b.GetCredentialManager().CurrentUser(); err != nil {
+			color.Red("Error: " + err.Error())
+		} else {
+			fmt.Println(user.GetUsername() + ": " + user.GetCredentialLevel().String())
+		}
+	}
+}
+
+// *** Misc Commands
 func replQuit([]string, backends.Backend) {
 	os.Exit(0)
 }
