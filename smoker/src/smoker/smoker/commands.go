@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/gob"
 	"errors"
 	"fmt"
 	"github.com/fatih/color"
@@ -25,6 +26,12 @@ var moveColor = binColor
 // ** Command Definitions
 
 func initCommands() {
+	// TODO move me somewhere more sensible
+	gob.Register(&backends.DummyBackend{})
+	gob.Register(&backends.DummyBin{})
+	gob.Register(&backends.DummyComponent{})
+	gob.Register(&backends.PasswordCredential{})
+	gob.Register(&backends.DummyCredentialManager{})
 
 	commands = make(map[string]func([]string, backends.Backend))
 	commands["help"] = replHelp
@@ -140,15 +147,60 @@ func printDump(c []backends.Component) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
 	fmt.Fprintln(w, "ID"+"\t"+"BIN"+"\t"+"NAME"+"\t"+"MANUFACTURER"+"\t"+"COUNT"+"\t")
 	for _, v := range c {
-		fmt.Fprintln(w, strconv.Itoa(int(v.GetId()))+"\t"+v.GetBin().GetName()+"\t"+v.GetName()+"\t"+v.GetManufacturer()+"\t"+strconv.Itoa(int(v.GetCount()))+"\t")
+		fmt.Fprintln(w, strconv.Itoa(int(v.GetId()))+"\t"+v.GetBin()+"\t"+v.GetName()+"\t"+v.GetManufacturer()+"\t"+strconv.Itoa(int(v.GetCount()))+"\t")
 	}
 	w.Flush()
 }
 
+// Encode via Gob to file
+func Save(path string, object interface{}) error {
+	file, err := os.Create(path)
+	if err == nil {
+		encoder := gob.NewEncoder(file)
+		encoder.Encode(object)
+	}
+	file.Close()
+	return err
+ }
+
+// Decode Gob file
+func Load(path string, object interface{}) error {
+	file, err := os.Open(path)
+	if err == nil {
+		decoder := gob.NewDecoder(file)
+		err = decoder.Decode(object)
+	}
+	file.Close()
+	return err
+}
+
+
 // ** Command Definitions
 // *** Item Commands
+type UserG struct {
+	Name, Pass string
+	idLookup map[uint]uint
+}
 func replDump(s []string, b backends.Backend) {
+	var d  = new(backends.DummyBackend)
+
 	c := b.GetAllComponents()
+	printDump(c)
+
+	fmt.Println("actual data")
+	fmt.Println(b)
+	err := Save("/tmp/smoker.gob", b)
+	// fmt.Println(err)
+	fmt.Println(b)
+
+	fmt.Println("actual loaded data")
+	fmt.Println(d)
+	err = Load("/tmp/smoker.gob", d)
+	fmt.Println(err)
+	fmt.Println(d)
+
+	c = d.GetAllComponents()
+	printDump(c)
 
 	if len(c) == 0 {
 		fmt.Println("No data is present.")
