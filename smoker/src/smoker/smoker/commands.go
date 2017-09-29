@@ -205,7 +205,7 @@ func replLoad(s []string, b backends.Backend) {
 	if len(s) < 1 {
 		fmt.Println("Please provide a file to load from.")
 	} else {
-		err := b.RestoreFromFile(s[0])
+		err := b.LoadFromFile(s[0])
 		if err != nil {
 			fmt.Println("Error: " + err.Error())
 		}

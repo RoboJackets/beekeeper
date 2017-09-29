@@ -256,6 +256,7 @@ func NewDummyCredentialManager() CredentialManager {
 }
 
 // ** DummyBackend
+// *** Def
 type DummyBackend struct {
 	// Map of component ID to component
 	// Use this for most lookups
@@ -265,6 +266,9 @@ type DummyBackend struct {
 
 	AuthManager CredentialManager
 }
+
+// *** Constructors
+// TODO refactor constructors into their own sections
 
 // Makes a very simple backend.
 // If specifying a number <= 0, 1 is defaulted to
@@ -310,6 +314,8 @@ func NewComponent(id, count uint, name, manufacturer string) Component {
 		Manufacturer: manufacturer}
 }
 
+// *** Data Dump Functions
+
 // Gets all the components in this dummybackend
 func (b *DummyBackend) GetAllComponents() []Component {
 	comp := make([]Component, 0)
@@ -327,6 +333,8 @@ func (b *DummyBackend) GetAllBinNames() []string {
 	}
 	return bins
 }
+
+// *** Component Modification
 
 // Adds the component to the bin we think is the most suitable
 func (b *DummyBackend) AddComponent(comp Component) (Bin, error) {
@@ -412,6 +420,7 @@ func (b *DummyBackend) GetCredentialManager() CredentialManager {
 	return b.AuthManager
 }
 
+// *** Serialization
 func (b *DummyBackend) SaveToFile(path string) error {
 	file, err := os.Create(path)
 	if err == nil {
@@ -421,7 +430,7 @@ func (b *DummyBackend) SaveToFile(path string) error {
 	file.Close()
 	return err
 }
-func (b *DummyBackend) RestoreFromFile(path string) error {
+func (b *DummyBackend) LoadFromFile(path string) error {
 	file, err := os.Open(path)
 	if err == nil {
 		decoder := gob.NewDecoder(file)

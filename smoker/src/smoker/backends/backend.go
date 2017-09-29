@@ -23,7 +23,7 @@ type Backend interface {
 
 	// Save/Restore backend data. These are optional, just throw an error if we can't do this.
 	SaveToFile(string) error
-	RestoreFromFile(string) error
+	LoadFromFile(string) error
 }
 
 type Bin interface {
