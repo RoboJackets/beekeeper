@@ -12,10 +12,10 @@ import (
 )
 
 const INTRO_TEXT = `Welcome to Smoker - The superior beekeper client`
-const INTRO_ASCII = `   _________ ___  ____  / /_____  _____
-  / ___/ __ ` + "`" + `__ \/ __ \/ //_/ _ \/ ___/
- (__  ) / / / / / /_/ / ,< /  __/ /
-/____/_/ /_/ /_/\____/_/|_|\___/_/
+const INTRO_ASCII = `   _________ ___  ____  / /_____  _____              (  )/
+  / ___/ __ ` + "`" + `__ \/ __ \/ //_/ _ \/ ___/               )(/
+ (__  ) / / / / / /_/ / ,< /  __/ / ________________ ( /)
+/____/_/ /_/ /_/\____/_/|_|\___/_/ ()__)____________)))))
 
 `
 
@@ -27,7 +27,7 @@ func main() {
 
 	intro()
 	initCommands()
-	color.Red("WARNING: Using DUMMY Backend. Your data will not be stored.")
+	color.Red("WARNING: Using LOCAL Backend. YOU are responsible for ensuring your data is safe!")
 
 	// Make our dummy backend
 	backend := backends.NewDummyBackend(10)
