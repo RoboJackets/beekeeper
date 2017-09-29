@@ -421,7 +421,14 @@ func (b *DummyBackend) GetCredentialManager() CredentialManager {
 }
 
 // *** Serialization
-func (b *DummyBackend) SaveToFile(path string) error {
+func (b *DummyBackend) SaveToFile(path string, force bool) error {
+	if _, err := os.Stat(path); (err == nil || !os.IsNotExist(err)) && !force {
+		if err == nil {
+			return errors.New(path + " already exists. Use savef to force")
+		}
+		return err
+	}
+
 	file, err := os.Create(path)
 	if err == nil {
 		encoder := gob.NewEncoder(file)
