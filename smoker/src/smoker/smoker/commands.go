@@ -26,12 +26,7 @@ var moveColor = binColor
 // ** Command Definitions
 
 func initCommands() {
-	// TODO move me somewhere more sensible
-	gob.Register(&backends.DummyBackend{})
-	gob.Register(&backends.DummyBin{})
-	gob.Register(&backends.DummyComponent{})
-	gob.Register(&backends.PasswordCredential{})
-	gob.Register(&backends.DummyCredentialManager{})
+	backends.RegisterDummyGob()
 
 	commands = make(map[string]func([]string, backends.Backend))
 	commands["help"] = replHelp
@@ -137,6 +132,8 @@ List of Commands:`)
 		fmt.Fprintln(w, "(b)ins\tPrints a list of all bins available.")
 		fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
 		fmt.Fprintln(w, "(s)can*\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
+		fmt.Fprintln(w, "save <file>\tSaves the current inventory database to a file")
+		fmt.Fprintln(w, "load <file>\tLoads the current inventory database from a file")
 		w.Flush()
 		fmt.Println("")
 		fmt.Println("Additional pages:")
@@ -195,6 +192,7 @@ func replDump(s []string, b backends.Backend) {
 }
 
 func replSave(s []string, b backends.Backend) {
+	// TODO warn before overwriting
 	if (len(s) < 1) {
 		fmt.Println("Please provide a file to save to.")
 	} else {
@@ -425,7 +423,8 @@ func replUpdate(args []string, b backends.Backend) {
 }
 
 func replWelcome(args []string, b backends.Backend) {
-	fmt.Println("Welcome to Smoker!\n")
+	fmt.Println("Welcome to Smoker!")
+	fmt.Println()
 	fmt.Println("Smoker is the CLI frontend to the BeeKeeper inventory suite.")
 	fmt.Println("It offers quick and easy access to all functionality beekeeper provides, while staying out of your way as much as possible.")
 	fmt.Println()

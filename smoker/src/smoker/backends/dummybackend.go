@@ -429,3 +429,12 @@ func (b *DummyBackend) RestoreFromFile(path string) error {
 	file.Close()
 	return err
 }
+
+// ** Gob Definitions
+func RegisterDummyGob() {
+	gob.Register(&DummyBackend{})
+	gob.Register(&DummyBin{})
+	gob.Register(&DummyComponent{})
+	gob.Register(&PasswordCredential{})
+	gob.Register(&DummyCredentialManager{})
+}
