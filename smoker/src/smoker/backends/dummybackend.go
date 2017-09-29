@@ -81,25 +81,25 @@ func (c *DummyComponent) MatchStr(s string) bool {
 
 // ** DummyCredential
 type PasswordCredential struct {
-	username, password string
-	level              CredentialLevel
+	Username, Password string
+	Level              CredentialLevel
 }
 
 func (p *PasswordCredential) GetUsername() string {
-	return p.username
+	return p.Username
 }
 func (p *PasswordCredential) GetAuth() string {
-	return p.password
+	return p.Password
 }
 func (p *PasswordCredential) GetCredentialLevel() CredentialLevel {
-	return p.level
+	return p.Level
 }
 func (p *PasswordCredential) setAuth(auth string) error {
-	p.password = auth
+	p.Password = auth
 	return nil
 }
 func (p *PasswordCredential) setCredentialLevel(cred CredentialLevel) error {
-	p.level = cred
+	p.Level = cred
 	return nil
 }
 
@@ -112,16 +112,16 @@ func NewDummyCredential(user, password string, level CredentialLevel) Credential
 		level = DEFAULT_CRED
 	}
 	return &PasswordCredential{
-		username: user,
-		password: password,
-		level:    level}
+		Username: user,
+		Password: password,
+		Level:    level}
 }
 
 // ** DummyCredentialManager
 // Represents a CredentialManager (storing creds)
 type DummyCredentialManager struct {
-	creds   map[string]Credential
-	current Credential
+	Creds   map[string]Credential
+	Current Credential
 }
 
 var NOPERM_ADMIN string = "Insufficient Permissions. Need: " + USER_ADMIN.String()
@@ -132,17 +132,17 @@ func (c *DummyCredentialManager) AddCredential(cred Credential) error {
 	} else if currentUser.GetCredentialLevel() < USER_ADMIN {
 		return errors.New(NOPERM_ADMIN)
 	}
-	_, exists := c.creds[cred.GetUsername()]
+	_, exists := c.Creds[cred.GetUsername()]
 	if exists {
 		return errors.New("Username already exists.")
 	}
-	c.creds[cred.GetUsername()] = cred
+	c.Creds[cred.GetUsername()] = cred
 	return nil
 }
 // Determines the current number of admins (highest privleges)
 func (c *DummyCredentialManager) numOfAdministrators() uint {
 	var count uint = 0
-	for _, cred := range c.creds {
+	for _, cred := range c.Creds {
 		if cred.GetCredentialLevel() >= Admin {
 			count++
 		}
@@ -155,10 +155,10 @@ func (c *DummyCredentialManager) RemoveCredential(user Credential) error {
 	} else if currentUser.GetCredentialLevel() < USER_ADMIN {
 		return errors.New(NOPERM_ADMIN)
 	} else {
-		if len(c.creds) <= 1 {
+		if len(c.Creds) <= 1 {
 			return errors.New("Tried to delete last user!")
 		}
-		if toDel, exists := c.creds[user.GetUsername()]; !exists {
+		if toDel, exists := c.Creds[user.GetUsername()]; !exists {
 			return errors.New("No user with name: " + user.GetUsername())
 		} else if toDel.GetCredentialLevel() >= Admin && c.numOfAdministrators() <= 1 {
 			return errors.New("Attempted to delete last administrator!")
@@ -167,7 +167,7 @@ func (c *DummyCredentialManager) RemoveCredential(user Credential) error {
 		}
 	}
 
-	delete(c.creds, user.GetUsername())
+	delete(c.Creds, user.GetUsername())
 	return nil
 }
 
@@ -178,34 +178,34 @@ func (c *DummyCredentialManager) DumpUsers() ([]Credential, error) {
 		return nil, errors.New(NOPERM_ADMIN)
 	}
 
-	valList := make([]Credential, len(c.creds))
+	valList := make([]Credential, len(c.Creds))
 	i := 0
-	for _, val := range c.creds {
+	for _, val := range c.Creds {
 		valList[i] = val
 		i++
 	}
 	return valList, nil
 }
 func (c *DummyCredentialManager) CurrentUser() (Credential, error) {
-	if c.current == nil {
+	if c.Current == nil {
 		return nil, errors.New("No current auth")
 	}
-	return c.current, nil
+	return c.Current, nil
 }
 func (c *DummyCredentialManager) Login(login Credential) error {
-	if candidate, exists := c.creds[login.GetUsername()]; !exists {
+	if candidate, exists := c.Creds[login.GetUsername()]; !exists {
 		return errors.New("Username not found!")
 	} else if candidate.GetUsername() != login.GetUsername() ||
 		candidate.GetAuth() != login.GetAuth() {
 		// TODO actually verify things
 		return errors.New("Wrong auth supplied.")
 	} else {
-		c.current = candidate
+		c.Current = candidate
 		return nil
 	}
 }
 func (c *DummyCredentialManager) UpdateAuth(cred Credential, auth string) error {
-	if candidate, exists := c.creds[cred.GetUsername()]; !exists {
+	if candidate, exists := c.Creds[cred.GetUsername()]; !exists {
 		return errors.New("Username not found!")
 	} else {
 		if currentUser, err := c.CurrentUser(); err == nil {
@@ -224,7 +224,7 @@ func (c *DummyCredentialManager) UpdateAuth(cred Credential, auth string) error 
 	}
 }
 func (c *DummyCredentialManager) UpdatePermission(cred Credential, auth CredentialLevel) error {
-	if candidate, exists := c.creds[cred.GetUsername()]; !exists {
+	if candidate, exists := c.Creds[cred.GetUsername()]; !exists {
 		return errors.New("Username not found!")
 	} else {
 		if currentUser, err := c.CurrentUser(); err == nil {
@@ -251,8 +251,8 @@ func NewDummyCredentialManager() CredentialManager {
 	defaultCreds := NewCleanDummyCredential()
 	creds[defaultCreds.GetUsername()] = defaultCreds
 	return &DummyCredentialManager{
-		creds:   creds,
-		current: nil}
+		Creds:   creds,
+		Current: nil}
 }
 
 // ** DummyBackend
@@ -261,9 +261,9 @@ type DummyBackend struct {
 	// Use this for most lookups
 	IdLookup map[uint]Component
 	// List of all the bins
-	bins map[string]DummyBin
+	Bins map[string]DummyBin
 
-	authManager CredentialManager
+	AuthManager CredentialManager
 }
 
 // Makes a very simple backend.
@@ -276,14 +276,14 @@ func NewDummyBackend(numBins uint) Backend {
 	idLookup := make(map[uint]Component)
 	newDummy := DummyBackend{
 		IdLookup:    idLookup,
-		bins:        make(map[string]DummyBin),
-		authManager: NewDummyCredentialManager()}
+		Bins:        make(map[string]DummyBin),
+		AuthManager: NewDummyCredentialManager()}
 
 	// Let's make 10 bins, A00 -> A09
 	for i := 0; i < int(numBins); i++ {
 		mp := make(map[uint]bool)
 		name := "A" + "0" + strconv.Itoa(i)
-		newDummy.bins[name] = DummyBin{
+		newDummy.Bins[name] = DummyBin{
 			Name:  name,
 			Parts: mp,
 			// TODO stop hard coding this
@@ -313,7 +313,7 @@ func NewComponent(id, count uint, name, manufacturer string) Component {
 // Gets all the components in this dummybackend
 func (b *DummyBackend) GetAllComponents() []Component {
 	comp := make([]Component, 0)
-	for _, bin := range b.bins {
+	for _, bin := range b.Bins {
 		for _, c := range bin.GetParts() {
 			comp = append(comp, b.IdLookup[c])
 		}
@@ -322,7 +322,7 @@ func (b *DummyBackend) GetAllComponents() []Component {
 }
 func (b *DummyBackend) GetAllBinNames() []string {
 	bins := make([]string, 0)
-	for _, bin := range b.bins {
+	for _, bin := range b.Bins {
 		bins = append(bins, bin.GetName())
 	}
 	return bins
@@ -331,7 +331,7 @@ func (b *DummyBackend) GetAllBinNames() []string {
 // Adds the component to the bin we think is the most suitable
 func (b *DummyBackend) AddComponent(comp Component) (Bin, error) {
 	var selectedBin *DummyBin
-	for _, v := range b.bins {
+	for _, v := range b.Bins {
 		if v.GetCapacity() > uint(len(v.Parts)) {
 			selectedBin = &v
 			break
@@ -360,10 +360,10 @@ func (b *DummyBackend) MoveComponent(comp Component, name string) error {
 		return nil
 	}
 
-	for _, bin := range b.bins {
+	for _, bin := range b.Bins {
 		if bin.GetName() == name {
 			if bin.GetCapacity() > uint(len(bin.Parts)) {
-				oldbin := b.bins[comp.GetBin()]
+				oldbin := b.Bins[comp.GetBin()]
 				oldbin.deletePart(comp.GetId())
 				comp.setBin(bin.GetName())
 				bin.Parts[comp.GetId()] = true
@@ -382,7 +382,7 @@ func (b *DummyBackend) LookupId(id uint) (Component, Bin, error) {
 		if component.GetBin() == "" {
 			return nil, nil, errors.New("[INTERNAL] The component found has no bin associated with it.")
 		}
-		bin := b.bins[component.GetBin()]
+		bin := b.Bins[component.GetBin()]
 		// TODO take a look at this logic
 		return component, &bin, nil
 	}
@@ -401,7 +401,7 @@ func (b *DummyBackend) RemoveComponent(comp Component) error {
 	if comp.GetBin() == "" {
 		return errors.New("The requested component is not present")
 	} else {
-		oldBin := b.bins[comp.GetBin()]
+		oldBin := b.Bins[comp.GetBin()]
 		oldBin.deletePart(comp.GetId())
 		comp.setBin("")
 		delete(b.IdLookup, comp.GetId())
@@ -409,7 +409,7 @@ func (b *DummyBackend) RemoveComponent(comp Component) error {
 	}
 }
 func (b *DummyBackend) GetCredentialManager() CredentialManager {
-	return b.authManager
+	return b.AuthManager
 }
 
 func (b *DummyBackend) SaveToFile(path string) error {
