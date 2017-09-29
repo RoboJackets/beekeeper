@@ -49,6 +49,9 @@ func initCommands() {
 	commands["scan"] = replScan
 	commands["s"] = replScan
 
+	commands["save"] = replSave
+	commands["load"] = replLoad
+
 	commands["rm"] = replRm
 	commands["r"] = replRm
 
@@ -182,31 +185,34 @@ type UserG struct {
 	idLookup map[uint]uint
 }
 func replDump(s []string, b backends.Backend) {
-	var d  = new(backends.DummyBackend)
-
 	c := b.GetAllComponents()
-	printDump(c)
-
-	fmt.Println("actual data")
-	fmt.Println(b)
-	err := Save("/tmp/smoker.gob", b)
-	// fmt.Println(err)
-	fmt.Println(b)
-
-	fmt.Println("actual loaded data")
-	fmt.Println(d)
-	err = Load("/tmp/smoker.gob", d)
-	fmt.Println(err)
-	fmt.Println(d)
-
-	c = d.GetAllComponents()
-	printDump(c)
 
 	if len(c) == 0 {
 		fmt.Println("No data is present.")
 		return
 	}
 	printDump(c)
+}
+
+func replSave(s []string, b backends.Backend) {
+	if (len(s) < 1) {
+		fmt.Println("Please provide a file to save to.")
+	} else {
+		err := b.SaveToFile(s[0])
+		if err != nil {
+			fmt.Println("Error: " + err.Error())
+		}
+	}
+}
+func replLoad(s []string, b backends.Backend) {
+	if (len(s) < 1) {
+		fmt.Println("Please provide a file to load from.")
+	} else {
+		err := b.RestoreFromFile(s[0])
+		if err != nil {
+			fmt.Println("Error: " + err.Error())
+		}
+	}
 }
 
 func replBins(s []string, b backends.Backend) {

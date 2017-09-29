@@ -3,7 +3,6 @@ package backends
 import (
 	"encoding/gob"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"os"
@@ -416,7 +415,7 @@ func (b *DummyBackend) SaveToFile(path string) error {
 	file, err := os.Create(path)
 	if err == nil {
 		encoder := gob.NewEncoder(file)
-		encoder.Encode(*b)
+		err = encoder.Encode(b)
 	}
 	file.Close()
 	return err
@@ -425,10 +424,7 @@ func (b *DummyBackend) RestoreFromFile(path string) error {
 	file, err := os.Open(path)
 	if err == nil {
 		decoder := gob.NewDecoder(file)
-		fmt.Println(b)
-		fmt.Println("Decoding")
-		err = decoder.Decode(*b)
-		fmt.Println(b)
+		err = decoder.Decode(b)
 	}
 	file.Close()
 	return err
