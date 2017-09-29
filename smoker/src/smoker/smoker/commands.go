@@ -95,7 +95,7 @@ func runCommand(prompt string, backend backends.Backend) {
 func replHelp(args []string, b backends.Backend) {
 
 	// UserAdmin Help page
-	if (len(args) >= 1 && args[0] == "useradmin") {
+	if len(args) >= 1 && args[0] == "useradmin" {
 		fmt.Println(`This manual page covers user managment commands.
 
 These include deletion/creation of users and setting user permissions.
@@ -140,7 +140,6 @@ List of Commands:`)
 		fmt.Println("\t\t\thelp useradmin")
 	}
 
-
 }
 
 func printDump(c []backends.Component) {
@@ -161,7 +160,7 @@ func Save(path string, object interface{}) error {
 	}
 	file.Close()
 	return err
- }
+}
 
 // Decode Gob file
 func Load(path string, object interface{}) error {
@@ -174,13 +173,13 @@ func Load(path string, object interface{}) error {
 	return err
 }
 
-
 // ** Command Definitions
 // *** Item Commands
 type UserG struct {
 	Name, Pass string
-	idLookup map[uint]uint
+	idLookup   map[uint]uint
 }
+
 func replDump(s []string, b backends.Backend) {
 	c := b.GetAllComponents()
 
@@ -193,7 +192,7 @@ func replDump(s []string, b backends.Backend) {
 
 func replSave(s []string, b backends.Backend) {
 	// TODO warn before overwriting
-	if (len(s) < 1) {
+	if len(s) < 1 {
 		fmt.Println("Please provide a file to save to.")
 	} else {
 		err := b.SaveToFile(s[0])
@@ -203,7 +202,7 @@ func replSave(s []string, b backends.Backend) {
 	}
 }
 func replLoad(s []string, b backends.Backend) {
-	if (len(s) < 1) {
+	if len(s) < 1 {
 		fmt.Println("Please provide a file to load from.")
 	} else {
 		err := b.RestoreFromFile(s[0])
@@ -543,7 +542,7 @@ func replListUsers(args []string, b backends.Backend) {
 	} else {
 		fmt.Println("Users:")
 		for _, name := range users {
-			fmt.Println(name.GetUsername()  + ": " + name.GetCredentialLevel().String())
+			fmt.Println(name.GetUsername() + ": " + name.GetCredentialLevel().String())
 		}
 	}
 }

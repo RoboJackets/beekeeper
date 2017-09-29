@@ -3,9 +3,9 @@ package backends
 import (
 	"encoding/gob"
 	"errors"
+	"os"
 	"strconv"
 	"strings"
-	"os"
 )
 
 // * Dummy Type Definitions
@@ -138,6 +138,7 @@ func (c *DummyCredentialManager) AddCredential(cred Credential) error {
 	c.Creds[cred.GetUsername()] = cred
 	return nil
 }
+
 // Determines the current number of admins (highest privleges)
 func (c *DummyCredentialManager) numOfAdministrators() uint {
 	var count uint = 0
