@@ -4,6 +4,8 @@ import (
 	"encoding/gob"
 	"errors"
 	"os"
+	"os/user"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -421,7 +423,19 @@ func (b *DummyBackend) GetCredentialManager() CredentialManager {
 }
 
 // *** Serialization
+// Translates a path with ~ to a path with literal home dir
+func translatePath(path string) string {
+	// TODO catch edge cases for '~' translation
+	usr, _ := user.Current()
+	dir := usr.HomeDir
+	if path[:2] == "~/" {
+		path = filepath.Join(dir, path[2:])
+	}
+	return path
+}
+
 func (b *DummyBackend) SaveToFile(path string, force bool) error {
+	path = translatePath(path)
 	if _, err := os.Stat(path); (err == nil || !os.IsNotExist(err)) && !force {
 		if err == nil {
 			return errors.New(path + " already exists. Use savef to force")
@@ -438,6 +452,7 @@ func (b *DummyBackend) SaveToFile(path string, force bool) error {
 	return err
 }
 func (b *DummyBackend) LoadFromFile(path string) error {
+	path = translatePath(path)
 	file, err := os.Open(path)
 	if err == nil {
 		decoder := gob.NewDecoder(file)
