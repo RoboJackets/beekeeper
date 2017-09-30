@@ -45,6 +45,7 @@ func initCommands() {
 	commands["s"] = replScan
 
 	commands["save"] = replSave
+	commands["savef"] = replSavef
 	commands["load"] = replLoad
 
 	commands["rm"] = replRm
@@ -132,7 +133,7 @@ List of Commands:`)
 		fmt.Fprintln(w, "(b)ins\tPrints a list of all bins available.")
 		fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
 		fmt.Fprintln(w, "(s)can*\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
-		fmt.Fprintln(w, "save <file>\tSaves the current inventory database to a file")
+		fmt.Fprintln(w, "save[f] <file>\tSaves the current inventory database to a file. [f] forces overwrites")
 		fmt.Fprintln(w, "load <file>\tLoads the current inventory database from a file")
 		w.Flush()
 		fmt.Println("")
@@ -191,11 +192,16 @@ func replDump(s []string, b backends.Backend) {
 }
 
 func replSave(s []string, b backends.Backend) {
-	// TODO warn before overwriting
+	replSaveRaw(s, b, false)
+}
+func replSavef(s []string, b backends.Backend) {
+	replSaveRaw(s, b, true)
+}
+func replSaveRaw(s []string, b backends.Backend, force bool) {
 	if len(s) < 1 {
 		fmt.Println("Please provide a file to save to.")
 	} else {
-		err := b.SaveToFile(s[0])
+		err := b.SaveToFile(s[0], force)
 		if err != nil {
 			fmt.Println("Error: " + err.Error())
 		}
