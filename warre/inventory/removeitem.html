@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Beekeeper - Inventory</title>
+	<title>Beekeeper - Remove Item</title>
 
 	<!-- external resource links -->
 	<link rel="stylesheet"
@@ -26,7 +26,6 @@
 	<script src="../js/global_on_page_load.js"></script>
 	<script src="../js/banner.js"></script>
 	<script src="../js/authentication.js"></script>
-	<link href="inventory.css" type="text/css" rel="stylesheet">
 
 	<!-- initialize page -->
 	<script>
@@ -43,7 +42,7 @@
 			<div id="banner_inject"></div>
 
 			<div class="well">
-				<h1>Inventory</h1>
+				<h1>Remove Item</h1>
 
 				<form>
 					<ul class="list-inline">
@@ -52,15 +51,31 @@
 						<li><a href="../acct/login.html">Logout</a></li>
 					</ul>
 				</form>
+				<form>
+					<div class="form-group" id="id_div">
+						<label for="id_input">ID</label>
+						<input type="id" class="form-control" id="id_input" placeholder="1">
+						<span id="id_input_feedback" class="help-block"></span>
+					</div>
+
+					<ul class="list-inline">
+						<li>
+							<div class="form-group">
+								<button type="button" class="btn btn-primary" id="submit_button">Submit</button>
+								<span id="input_feedback" class="help-block has-success"></span>
+							</div>
+						</li>
+						<li><a href="inventory.html">Back</a></li>
+					</ul>
+				</form>
 			</div>
 		</div>
 	</div>
 </div>
-<div class="container" id="options">
-	<a class="btn" href="additem.html">Add item</a><br><br>
-	<a class="btn" href="removeitem.html">Remove item</a><br><br>
-	<a class="btn" href="viewitems.html">View items</a><br><br>
-</div>
+
+<?php
+echo "Hell world!";
+?>
 
 </body>
 </html>
