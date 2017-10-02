@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/gob"
 	"errors"
 	"fmt"
 	"github.com/fatih/color"
@@ -25,6 +26,7 @@ var moveColor = binColor
 // ** Command Definitions
 
 func initCommands() {
+	backends.RegisterDummyGob()
 
 	commands = make(map[string]func([]string, backends.Backend))
 	commands["help"] = replHelp
@@ -41,6 +43,10 @@ func initCommands() {
 
 	commands["scan"] = replScan
 	commands["s"] = replScan
+
+	commands["save"] = replSave
+	commands["savef"] = replSavef
+	commands["load"] = replLoad
 
 	commands["rm"] = replRm
 	commands["r"] = replRm
@@ -90,7 +96,7 @@ func runCommand(prompt string, backend backends.Backend) {
 func replHelp(args []string, b backends.Backend) {
 
 	// UserAdmin Help page
-	if (len(args) >= 1 && args[0] == "useradmin") {
+	if len(args) >= 1 && args[0] == "useradmin" {
 		fmt.Println(`This manual page covers user managment commands.
 
 These include deletion/creation of users and setting user permissions.
@@ -127,12 +133,13 @@ List of Commands:`)
 		fmt.Fprintln(w, "(b)ins\tPrints a list of all bins available.")
 		fmt.Fprintln(w, "(g)rep <search>\tGreps all information in every component.")
 		fmt.Fprintln(w, "(s)can*\tLaunches the interactive scanner interface to add/identify parts.\n\t  Takes in Component IDs, which can be printed with a scanner\n\t  (q)uit to exit scanning mode.")
+		fmt.Fprintln(w, "save[f] <file>\tSaves the current inventory database to a file. [f] forces overwrites")
+		fmt.Fprintln(w, "load <file>\tLoads the current inventory database from a file")
 		w.Flush()
 		fmt.Println("")
 		fmt.Println("Additional pages:")
 		fmt.Println("\t\t\thelp useradmin")
 	}
-
 
 }
 
@@ -140,13 +147,40 @@ func printDump(c []backends.Component) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
 	fmt.Fprintln(w, "ID"+"\t"+"BIN"+"\t"+"NAME"+"\t"+"MANUFACTURER"+"\t"+"COUNT"+"\t")
 	for _, v := range c {
-		fmt.Fprintln(w, strconv.Itoa(int(v.GetId()))+"\t"+v.GetBin().GetName()+"\t"+v.GetName()+"\t"+v.GetManufacturer()+"\t"+strconv.Itoa(int(v.GetCount()))+"\t")
+		fmt.Fprintln(w, strconv.Itoa(int(v.GetId()))+"\t"+v.GetBin()+"\t"+v.GetName()+"\t"+v.GetManufacturer()+"\t"+strconv.Itoa(int(v.GetCount()))+"\t")
 	}
 	w.Flush()
 }
 
+// Encode via Gob to file
+func Save(path string, object interface{}) error {
+	file, err := os.Create(path)
+	if err == nil {
+		encoder := gob.NewEncoder(file)
+		encoder.Encode(object)
+	}
+	file.Close()
+	return err
+}
+
+// Decode Gob file
+func Load(path string, object interface{}) error {
+	file, err := os.Open(path)
+	if err == nil {
+		decoder := gob.NewDecoder(file)
+		err = decoder.Decode(object)
+	}
+	file.Close()
+	return err
+}
+
 // ** Command Definitions
 // *** Item Commands
+type UserG struct {
+	Name, Pass string
+	idLookup   map[uint]uint
+}
+
 func replDump(s []string, b backends.Backend) {
 	c := b.GetAllComponents()
 
@@ -155,6 +189,33 @@ func replDump(s []string, b backends.Backend) {
 		return
 	}
 	printDump(c)
+}
+
+func replSave(s []string, b backends.Backend) {
+	replSaveRaw(s, b, false)
+}
+func replSavef(s []string, b backends.Backend) {
+	replSaveRaw(s, b, true)
+}
+func replSaveRaw(s []string, b backends.Backend, force bool) {
+	if len(s) < 1 {
+		fmt.Println("Please provide a file to save to.")
+	} else {
+		err := b.SaveToFile(s[0], force)
+		if err != nil {
+			fmt.Println("Error: " + err.Error())
+		}
+	}
+}
+func replLoad(s []string, b backends.Backend) {
+	if len(s) < 1 {
+		fmt.Println("Please provide a file to load from.")
+	} else {
+		err := b.LoadFromFile(s[0])
+		if err != nil {
+			fmt.Println("Error: " + err.Error())
+		}
+	}
 }
 
 func replBins(s []string, b backends.Backend) {
@@ -367,7 +428,8 @@ func replUpdate(args []string, b backends.Backend) {
 }
 
 func replWelcome(args []string, b backends.Backend) {
-	fmt.Println("Welcome to Smoker!\n")
+	fmt.Println("Welcome to Smoker!")
+	fmt.Println()
 	fmt.Println("Smoker is the CLI frontend to the BeeKeeper inventory suite.")
 	fmt.Println("It offers quick and easy access to all functionality beekeeper provides, while staying out of your way as much as possible.")
 	fmt.Println()
@@ -486,7 +548,7 @@ func replListUsers(args []string, b backends.Backend) {
 	} else {
 		fmt.Println("Users:")
 		for _, name := range users {
-			fmt.Println(name.GetUsername()  + ": " + name.GetCredentialLevel().String())
+			fmt.Println(name.GetUsername() + ": " + name.GetCredentialLevel().String())
 		}
 	}
 }

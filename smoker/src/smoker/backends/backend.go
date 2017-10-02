@@ -20,13 +20,17 @@ type Backend interface {
 	GetAllBinNames() []string
 	// Return a CredentialManager to handle me Auth
 	GetCredentialManager() CredentialManager
+
+	// Save/Restore backend data. These are optional, just throw an error if we can't do this.
+	SaveToFile(string, bool) error
+	LoadFromFile(string) error
 }
 
 type Bin interface {
 	GetName() string
 	GetCapacity() uint
-	GetParts() []Component
-	deletePart(Component)
+	GetParts() []uint
+	deletePart(uint)
 }
 
 type Component interface {
@@ -35,8 +39,9 @@ type Component interface {
 	GetId() uint
 	GetCount() uint
 	SetCount(uint)
-	GetBin() Bin
-	setBin(Bin)
+	// the string here is the unique bin name, same as returned from GetAllBinNames()
+	GetBin() string
+	setBin(string)
 	// Return true if the input string matches any field in this component
 	// Ex: A0 should return true if we are in bin A0, or if we are "resistor A0"
 	MatchStr(string) bool

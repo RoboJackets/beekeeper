@@ -18,7 +18,11 @@ clean:
 run: all
 	@./bin/smoker
 
+run-rlwrap: all
+	@rlwrap ./bin/smoker
+
 r: run
+rr: run-rlwrap
 
 win:
 	export GOPATH=`pwd` && GOOS=windows GOARCH=amd64 go build -o bin/smoker.exe smoker/smoker
