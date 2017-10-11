@@ -23,16 +23,110 @@
 			crossorigin="anonymous"></script>
 
 	<!-- internal resource links -->
+	<!--
 	<script src="../js/global_on_page_load.js"></script>
 	<script src="../js/banner.js"></script>
 	<script src="../js/authentication.js"></script>
+	-->
+	<script src="js.cookie.js"></script>
 	<link href="inventory.css" type="text/css" rel="stylesheet">
 
 	<!-- initialize page -->
 	<script>
 		jQuery(document).ready(function(){
-			on_page_ready();
+
+		$("id-input").focus();
+
+		function selectCI() {
+			ci = true;
+			co = false;
+			stat = false;
+			if ($('#chk-out-li').hasClass('active')) {
+				$('#chk-out-li').removeClass('active');
+			}
+			if ($('#status-li').hasClass('active')) {
+				$('#status-li').removeClass('active');
+			}
+
+			if (! $('#chk-in-li').hasClass('active')) {
+				$('#chk-in-li').addClass('active');
+			}
+
+			$("id-input").focus();
+		}
+
+		var ci = true;
+		var co = false;
+		var stat = false;
+                $('#chk-in-btn').click(function () {
+			selectCI();
+		});	
+
+                $('#chk-out-btn').click(function () {
+			co = true;
+			ci = false;
+			stat = false;
+			if ($('#chk-in-li').hasClass('active')) {
+				$('#chk-in-li').removeClass('active');
+			}
+			if ($('#status-li').hasClass('active')) {
+				$('#status-li').removeClass('active');
+			}
+
+			if (! $('#chk-out-li').hasClass('active')) {
+				$('#chk-out-li').addClass('active');
+			}
+			
+			$("#id-input").focus();	
+		});	
+
+		$('#status-btn').click(function () {
+			stat = true;
+			ci = false;
+			co = false;
+			if ($('#chk-out-li').hasClass('active')) {
+				$('#chk-out-li').removeClass('active');
+			}
+			if ($('#chk-in-li').hasClass('active')) {
+				$('#chk-in-li').removeClass('active');
+			}
+		
+			if (! $('#status-li').hasClass('active')) {
+				$('#status-li').addClass('active');
+			}
+
+			$("#id-input").focus();						
 		});
+
+		$('#id-input').on('keypress', function (e) {
+         		if(e.which === 13) {
+            			$(this).attr("disabled", "disabled");
+				
+				if (!stat) {
+					Cookies.set($('#id-input').val(), ci | !co);
+					if (ci) {
+						$("#feedback").text("Checked in.");
+					} else {
+						$("#feedback").text("Checked out.");
+					}
+				} else {
+					if (Cookies.get($('#id-input').val()) == "1") {
+						$("#feedback").text("This item is checked in.");
+						//alert("This item is checked in.");
+					} else {
+						$("#feedback").text("This item is checked out.");
+						//alert("This item is checked out.");
+					}
+				}
+
+            			$(this).removeAttr("disabled");
+
+				$('#id-input').val('');
+				selectCI();
+         		}
+   		});
+
+		});				
 	</script>
 </head>
 <body>
@@ -52,14 +146,34 @@
 						<li><a href="../acct/login.html">Logout</a></li>
 					</ul>
 				</form>
+
+				<form>
+					<ul class="pagination pagination-lg">
+    						<li id="chk-in-li" class="page-item active">
+							<a id="chk-in-btn" class="page-link" href="#">Check-In</a>
+    						</li>
+    						<li id="chk-out-li" class="page-item">
+    							<a id="chk-out-btn" class="page-link" href="#">Check-Out</a>
+						</li>
+						<li id='status-li' class='page-item'>
+							<a id='status-btn' class='page-link' href='#'>Status</a>
+						</li>
+  					</ul>
+
+				<form>
+
+				<form>
+					<div class='form-group'>
+						<label>ID<input class='form-control' id="id-input"></label>
+					</div>
+				</form>
+
+				<p id="feedback"></p>
 			</div>
 		</div>
 	</div>
 </div>
 <div class="container" id="options">
-	<a class="btn" href="additem.html">Add item</a><br><br>
-	<a class="btn" href="removeitem.html">Remove item</a><br><br>
-	<a class="btn" href="viewitems.html">View items</a><br><br>
 </div>
 
 </body>
