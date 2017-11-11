@@ -28,7 +28,7 @@ var moveColor = binColor
 func initCommands() {
 	backends.RegisterDummyGob()
 
-	commands = make(map[string]func([]string, backends.Backend))
+	commands = make(map[string]func([]string, backends.Backend, backends.Credential))
 	commands["help"] = replHelp
 	commands["h"] = replHelp
 
@@ -79,7 +79,7 @@ func initCommands() {
 
 // ** High Level Funcs
 // Runs a repl command by keying into the command map
-func runCommand(prompt string, backend backends.Backend) {
+func runCommand(prompt string, backend backends.Backend, cred backends.Credential) {
 	cmds := strings.Fields(prompt)
 
 	if len(cmds) == 0 {
@@ -89,11 +89,11 @@ func runCommand(prompt string, backend backends.Backend) {
 	if v, p := commands[cmds[0]]; !p {
 		fmt.Println("'" + cmds[0] + "' is not a valid command.")
 	} else {
-		v(cmds[1:], backend)
+		v(cmds[1:], backend, cred)
 	}
 }
 
-func replHelp(args []string, b backends.Backend) {
+func replHelp(args []string, b backends.Backend, cred backends.Credential) {
 
 	// UserAdmin Help page
 	if len(args) >= 1 && args[0] == "useradmin" {
@@ -181,7 +181,7 @@ type UserG struct {
 	idLookup   map[uint]uint
 }
 
-func replDump(s []string, b backends.Backend) {
+func replDump(s []string, b backends.Backend, cred backends.Credential) {
 	c := b.GetAllComponents()
 
 	if len(c) == 0 {
@@ -191,10 +191,10 @@ func replDump(s []string, b backends.Backend) {
 	printDump(c)
 }
 
-func replSave(s []string, b backends.Backend) {
+func replSave(s []string, b backends.Backend, cred backends.Credential) {
 	replSaveRaw(s, b, false)
 }
-func replSavef(s []string, b backends.Backend) {
+func replSavef(s []string, b backends.Backend, cred backends.Credential) {
 	replSaveRaw(s, b, true)
 }
 func replSaveRaw(s []string, b backends.Backend, force bool) {
@@ -207,7 +207,7 @@ func replSaveRaw(s []string, b backends.Backend, force bool) {
 		}
 	}
 }
-func replLoad(s []string, b backends.Backend) {
+func replLoad(s []string, b backends.Backend, cred backends.Credential) {
 	if len(s) < 1 {
 		fmt.Println("Please provide a file to load from.")
 	} else {
@@ -218,7 +218,7 @@ func replLoad(s []string, b backends.Backend) {
 	}
 }
 
-func replBins(s []string, b backends.Backend) {
+func replBins(s []string, b backends.Backend, cred backends.Credential) {
 	allBins := b.GetAllBinNames()
 	for i, _ := range allBins {
 		fmt.Println(allBins[i])
@@ -226,7 +226,7 @@ func replBins(s []string, b backends.Backend) {
 }
 
 // TODO refactor replScan to use shared read functions
-func replScan(s []string, b backends.Backend) {
+func replScan(s []string, b backends.Backend, cred backends.Credential) {
 	for {
 		idInt, err := readStringLoop(scanColor("scan*> "))
 		if err != nil {
@@ -260,7 +260,7 @@ func replScan(s []string, b backends.Backend) {
 					// we got nothing to move to...
 					break
 				}
-				if err := b.MoveComponent(comp, newBin); err == nil {
+				if err := b.MoveComponent(comp.GetId(), newBin); err == nil {
 					// Success!
 					break
 				} else {
@@ -293,7 +293,7 @@ func printBin(s string) {
 	w.Println(s)
 }
 
-func replMoo(s []string, b backends.Backend) {
+func replMoo(s []string, b backends.Backend, cred backends.Credential) {
 	moo, _ := base64.StdEncoding.DecodeString("IF9fX19fX19fIA0KPCBNb28uLi4" +
 		"gPg0KIC0tLS0tLS0tIA0KICAgXA0KICAgIFwgICAgICAgICAgICAgIC4uLi4gICAgICAgDQ" +
 		"ogICAgICAgICAgIC4uLi4uLi4uICAgIC4gICAgICANCiAgICAgICAgICAuICAgICAgICAgI" +
@@ -302,7 +302,7 @@ func replMoo(s []string, b backends.Backend) {
 	fmt.Println(string(moo))
 }
 
-func replGrep(s []string, b backends.Backend) {
+func replGrep(s []string, b backends.Backend, cred backends.Credential) {
 	args := strings.Join(s, " ")
 	if len(args) == 0 {
 		fmt.Println("Please enter a search query to grep for.")
@@ -312,7 +312,7 @@ func replGrep(s []string, b backends.Backend) {
 	printDump(components)
 }
 
-func replMove(args []string, b backends.Backend) {
+func replMove(args []string, b backends.Backend, cred backends.Credential) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
@@ -325,7 +325,7 @@ func replMove(args []string, b backends.Backend) {
 			READBIN:
 				if bin, err := readStringLoop(binColor("bin> ")); err != nil {
 					return
-				} else if err := b.MoveComponent(component, bin); err != nil {
+				} else if err := b.MoveComponent(component.GetId(), bin); err != nil {
 					fmt.Println("Error: " + err.Error())
 					// Read the bin again!
 					goto READBIN
@@ -342,7 +342,7 @@ func replMove(args []string, b backends.Backend) {
 		if component, _, err := b.LookupId(id); err != nil {
 			fmt.Println("No component with id '" + id + "' was found.")
 			return
-		} else if err := b.MoveComponent(component, args[1]); err != nil {
+		} else if err := b.MoveComponent(component.GetId(), args[1]); err != nil {
 			fmt.Println("Error: " + err.Error())
 			return
 		}
@@ -352,7 +352,7 @@ func replMove(args []string, b backends.Backend) {
 
 const ErrorDeleteID string = "[INTERNAL] An internal error occurred when deleting an element. Partial deletion probably occured."
 
-func replRm(args []string, b backends.Backend) {
+func replRm(args []string, b backends.Backend, cred backends.Credential) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
@@ -361,7 +361,7 @@ func replRm(args []string, b backends.Backend) {
 				return
 			} else if component, _, err := b.LookupId(id); err != nil {
 				fmt.Println("'" + id + "' " + IDWarning)
-			} else if err := b.RemoveComponent(component); err != nil {
+			} else if err := b.RemoveComponent(component.GetId()); err != nil {
 				fmt.Println(ErrorDeleteID)
 				return
 			}
@@ -379,7 +379,7 @@ func replRm(args []string, b backends.Backend) {
 		}
 
 		for _, comp := range components {
-			if err := b.RemoveComponent(comp); err != nil {
+			if err := b.RemoveComponent(comp.GetId()); err != nil {
 				fmt.Println(ErrorDeleteID)
 				return
 			}
@@ -388,7 +388,7 @@ func replRm(args []string, b backends.Backend) {
 }
 
 // Function for updating the count of a component
-func replUpdate(args []string, b backends.Backend) {
+func replUpdate(args []string, b backends.Backend, cred backends.Credential) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
@@ -400,8 +400,9 @@ func replUpdate(args []string, b backends.Backend) {
 			} else if count, err := readUint(countColor("count> "), CountWarning); err != nil {
 				return
 			} else {
-				// TODO consider relative counts
-				component.SetCount(uint(count))
+				if err := b.UpdateCount(component.GetId(), uint(count)); err != nil {
+					fmt.Println(err)
+				}
 			}
 		}
 	} else {
@@ -416,12 +417,14 @@ func replUpdate(args []string, b backends.Backend) {
 		} else if j, err := strconv.ParseUint(args[1], 10, 32); err != nil {
 			fmt.Println("'" + args[1] + "' is not a valid count.")
 		} else {
-			component.SetCount(uint(j))
+			if err := b.UpdateCount(component.GetId(), uint(j)); err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }
 
-func replWelcome(args []string, b backends.Backend) {
+func replWelcome(args []string, b backends.Backend, cred backends.Credential) {
 	fmt.Println("Welcome to Smoker!")
 	fmt.Println()
 	fmt.Println("Smoker is the CLI frontend to the BeeKeeper inventory suite.")
@@ -448,7 +451,7 @@ func genComponent(id string) (backends.Component, error) {
 }
 
 // *** Auth Commands
-func replLogin(args []string, b backends.Backend) {
+func replLogin(args []string, b backends.Backend, cred backends.Credential) {
 	if len(args) == 0 {
 		fmt.Println("Please enter your username to login!")
 		return
@@ -488,7 +491,7 @@ func getPermissionIndex() backends.CredentialLevel {
 	return num
 }
 
-func replAddUser(args []string, b backends.Backend) {
+func replAddUser(args []string, b backends.Backend, cred backends.Credential) {
 	if len(args) == 0 {
 		fmt.Println("Please enter a user to add.")
 		return
@@ -512,7 +515,7 @@ func replAddUser(args []string, b backends.Backend) {
 	}
 }
 
-func replDeleteUser(args []string, b backends.Backend) {
+func replDeleteUser(args []string, b backends.Backend, cred backends.Credential) {
 	if len(args) == 0 {
 		fmt.Println("Please enter a user to delete.")
 		return
@@ -536,7 +539,7 @@ func replDeleteUser(args []string, b backends.Backend) {
 	}
 }
 
-func replListUsers(args []string, b backends.Backend) {
+func replListUsers(args []string, b backends.Backend, cred backends.Credential) {
 	if users, err := b.GetCredentialManager().DumpUsers(); err != nil {
 		color.Red("Error: " + err.Error())
 	} else {
@@ -547,10 +550,10 @@ func replListUsers(args []string, b backends.Backend) {
 	}
 }
 
-func replChangeAuth(args []string, b backends.Backend) {
+func replChangeAuth(args []string, b backends.Backend, cred backends.Credential) {
 	var user string
 	if len(args) == 0 {
-		if cred, err := b.GetCredentialManager().CurrentUser(); err != nil {
+		if cred == nil {
 			fmt.Println("No User logged in!")
 			return
 		} else {
@@ -560,18 +563,18 @@ func replChangeAuth(args []string, b backends.Backend) {
 		user = args[0]
 	}
 	password := GetPWs()
-	cred := backends.NewDummyCredential(user, password, backends.Unknown)
-	if err := b.GetCredentialManager().UpdateAuth(cred, password); err != nil {
+	newCred := backends.NewDummyCredential(user, password, backends.Unknown)
+	if err := b.GetCredentialManager().UpdateAuth(newCred, password); err != nil {
 		color.Red("Error: " + err.Error())
 	} else {
 		fmt.Println("Changed password of " + user)
 	}
 }
 
-func replChangePermissionLevel(args []string, b backends.Backend) {
+func replChangePermissionLevel(args []string, b backends.Backend, cred backends.Credential) {
 	var user string
 	if len(args) == 0 {
-		if cred, err := b.GetCredentialManager().CurrentUser(); err != nil {
+		if cred == nil {
 			fmt.Println("No User logged in!")
 			return
 		} else {
@@ -582,25 +585,25 @@ func replChangePermissionLevel(args []string, b backends.Backend) {
 	}
 	printPermissionTable()
 	perm := getPermissionIndex()
-	cred := backends.NewDummyCredential(user, "", perm)
-	if err := b.GetCredentialManager().UpdatePermission(cred, perm); err != nil {
+	newCred := backends.NewDummyCredential(user, "", perm)
+	if err := b.GetCredentialManager().UpdatePermission(newCred, perm); err != nil {
 		color.Red("Error: " + err.Error())
 	} else {
 		fmt.Println("Changed permission level of " + user)
 	}
 }
 
-func replWhoAmI(args []string, b backends.Backend) {
+func replWhoAmI(args []string, b backends.Backend, cred backends.Credential) {
 	if len(args) == 0 {
-		if user, err := b.GetCredentialManager().CurrentUser(); err != nil {
-			color.Red("Error: " + err.Error())
+		if cred == nil {
+			color.Red("Error: no user logged in")
 		} else {
-			fmt.Println(user.GetUsername() + ": " + user.GetCredentialLevel().String())
+			fmt.Println(cred.GetUsername() + ": " + cred.GetCredentialLevel().String())
 		}
 	}
 }
 
 // *** Misc Commands
-func replQuit([]string, backends.Backend) {
+func replQuit([]string, backends.Backend, backends.Credential) {
 	os.Exit(0)
 }

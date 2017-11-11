@@ -20,7 +20,7 @@ const INTRO_ASCII = `   _________ ___  ____  / /_____  _____              (  )/
 `
 
 // TODO make this dummy backend a generic backend
-var commands map[string]func([]string, backends.Backend)
+var commands map[string]func([]string, backends.Backend, backends.Credential)
 
 // Main function for smoker
 func main() {
@@ -36,7 +36,12 @@ func main() {
 
 	quit := false
 	for !quit {
-		runCommand(read("> "), backend)
+		if user, err := credManager.CurrentUser(); err != nil {
+			fmt.Println(err)
+			runCommand(read("> "), backend, user)
+		} else {
+			runCommand(read("> "), backend, user)
+		}
 	}
 }
 
