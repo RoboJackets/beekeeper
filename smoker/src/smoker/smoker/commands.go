@@ -147,7 +147,7 @@ func printDump(c []backends.Component) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
 	fmt.Fprintln(w, "ID"+"\t"+"BIN"+"\t"+"NAME"+"\t"+"MANUFACTURER"+"\t"+"COUNT"+"\t")
 	for _, v := range c {
-		fmt.Fprintln(w, strconv.Itoa(int(v.GetId()))+"\t"+v.GetBin()+"\t"+v.GetName()+"\t"+v.GetManufacturer()+"\t"+strconv.Itoa(int(v.GetCount()))+"\t")
+		fmt.Fprintln(w, v.GetId()+"\t"+v.GetBin()+"\t"+v.GetName()+"\t"+v.GetManufacturer()+"\t"+strconv.Itoa(int(v.GetCount()))+"\t")
 	}
 	w.Flush()
 }
@@ -228,7 +228,7 @@ func replBins(s []string, b backends.Backend) {
 // TODO refactor replScan to use shared read functions
 func replScan(s []string, b backends.Backend) {
 	for {
-		idInt, err := readUint(scanColor("scan*> "), IDWarning)
+		idInt, err := readStringLoop(scanColor("scan*> "))
 		if err != nil {
 			break
 		}
@@ -316,11 +316,11 @@ func replMove(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
-			if id, err := readUint(scanColor("move ID> "), IDWarning); err != nil {
+			if id, err := readStringLoop(scanColor("move ID> ")); err != nil {
 				// User quit, or error reading
 				return
 			} else if component, _, err := b.LookupId(id); err != nil {
-				fmt.Println("'" + strconv.Itoa(int(id)) + "' " + IDWarning)
+				fmt.Println("'" + id + "' " + IDWarning)
 			} else {
 			READBIN:
 				if bin, err := readStringLoop(binColor("bin> ")); err != nil {
@@ -338,11 +338,9 @@ func replMove(args []string, b backends.Backend) {
 			fmt.Println("mv needs 2 or 0 arguments.")
 			return
 		}
-		if id, err := strconv.Atoi(args[0]); err != nil {
-			fmt.Println("'" + args[0] + "' is not a valid ID!")
-			return
-		} else if component, _, err := b.LookupId(uint(id)); err != nil {
-			fmt.Println("No component with id '" + strconv.Itoa(id) + "' was found.")
+		id := args[0]
+		if component, _, err := b.LookupId(id); err != nil {
+			fmt.Println("No component with id '" + id + "' was found.")
 			return
 		} else if err := b.MoveComponent(component, args[1]); err != nil {
 			fmt.Println("Error: " + err.Error())
@@ -358,11 +356,11 @@ func replRm(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
-			if id, err := readUint(scanColor("rm*> "), IDWarning); err != nil {
+			if id, err := readStringLoop(scanColor("rm*> ")); err != nil {
 				// User quit, or error reading
 				return
 			} else if component, _, err := b.LookupId(id); err != nil {
-				fmt.Println("'" + strconv.Itoa(int(id)) + "' " + IDWarning)
+				fmt.Println("'" + id + "' " + IDWarning)
 			} else if err := b.RemoveComponent(component); err != nil {
 				fmt.Println(ErrorDeleteID)
 				return
@@ -371,12 +369,9 @@ func replRm(args []string, b backends.Backend) {
 		}
 	} else {
 		components := make([]backends.Component, 0)
-		for _, v := range args {
-			if id, err := strconv.Atoi(v); err != nil {
-				fmt.Println("'" + v + "' " + IDWarning)
-				return
-			} else if comp, _, err := b.LookupId(uint(id)); err != nil {
-				fmt.Println("'" + v + "' " + IDWarning)
+		for _, id := range args {
+			if comp, _, err := b.LookupId(id); err != nil {
+				fmt.Println("'" + id + "' " + IDWarning)
 				return
 			} else {
 				components = append(components, comp)
@@ -397,11 +392,11 @@ func replUpdate(args []string, b backends.Backend) {
 	if len(args) == 0 {
 		// Interactive mode
 		for {
-			if id, err := readUint(scanColor("update*> "), IDWarning); err != nil {
+			if id, err := readStringLoop(scanColor("update*> ")); err != nil {
 				// User quit, or error reading
 				return
 			} else if component, _, err := b.LookupId(id); err != nil {
-				fmt.Println("'" + strconv.Itoa(int(id)) + "' " + IDWarning)
+				fmt.Println("'" + id + "' " + IDWarning)
 			} else if count, err := readUint(countColor("count> "), CountWarning); err != nil {
 				return
 			} else {
@@ -415,9 +410,8 @@ func replUpdate(args []string, b backends.Backend) {
 			return
 		}
 
-		if i, err := strconv.ParseUint(args[0], 10, 32); err != nil {
-			fmt.Println("'" + args[0] + "' is not a valid ID.")
-		} else if component, _, err := b.LookupId(uint(i)); err != nil {
+		i := args[0]
+		if component, _, err := b.LookupId(i); err != nil {
 			fmt.Println("'" + args[0] + "' is not a present component.")
 		} else if j, err := strconv.ParseUint(args[1], 10, 32); err != nil {
 			fmt.Println("'" + args[1] + "' is not a valid count.")
@@ -439,7 +433,7 @@ func replWelcome(args []string, b backends.Backend) {
 }
 
 // Queries the user for the info required to make a component
-func genComponent(id uint) (backends.Component, error) {
+func genComponent(id string) (backends.Component, error) {
 	// Need Count, Name, and Manufacturer
 	if name, err := readStringLoopRaw("Part Name> ", false); err != nil {
 		return nil, errors.New("Error Reading Component.")
