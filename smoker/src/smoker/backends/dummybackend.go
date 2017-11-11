@@ -66,7 +66,7 @@ func (c *DummyComponent) GetBin() string {
 func (c *DummyComponent) GetCount() uint {
 	return c.Count
 }
-func (c *DummyComponent) SetCount(u uint) {
+func (c *DummyComponent) setCount(u uint) {
 	c.Count = u
 }
 func (c *DummyComponent) setBin(b string) {
@@ -417,6 +417,18 @@ func (b *DummyBackend) RemoveComponent(comp Component) error {
 		comp.setBin("")
 		delete(b.IdLookup, comp.GetId())
 		return nil
+	}
+}
+func (b *DummyBackend) UpdateCount(id string, count uint) error {
+	if c, _, err := b.LookupId(id); err != nil {
+		return err;
+	} else {
+		if c.GetBin() == "" {
+			return errors.New("The requested component is not present")
+		} else {
+			c.setCount(count)
+			return nil
+		}
 	}
 }
 func (b *DummyBackend) GetCredentialManager() CredentialManager {

@@ -20,6 +20,8 @@ type Backend interface {
 	GetAllBinNames() []string
 	// Return a CredentialManager to handle me Auth
 	GetCredentialManager() CredentialManager
+	// Update Count of a component
+	UpdateCount(string, uint) error
 
 	// Save/Restore backend data. These are optional, just throw an error if we can't do this.
 	SaveToFile(string, bool) error
@@ -38,7 +40,7 @@ type Component interface {
 	GetManufacturer() string
 	GetId() string
 	GetCount() uint
-	SetCount(uint)
+	setCount(uint)
 	// the string here is the unique bin name, same as returned from GetAllBinNames()
 	GetBin() string
 	setBin(string)

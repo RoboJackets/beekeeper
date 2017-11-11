@@ -400,8 +400,9 @@ func replUpdate(args []string, b backends.Backend) {
 			} else if count, err := readUint(countColor("count> "), CountWarning); err != nil {
 				return
 			} else {
-				// TODO consider relative counts
-				component.SetCount(uint(count))
+				if err := b.UpdateCount(component.GetId(), uint(count)); err != nil {
+					fmt.Println(err)
+				}
 			}
 		}
 	} else {
@@ -416,7 +417,9 @@ func replUpdate(args []string, b backends.Backend) {
 		} else if j, err := strconv.ParseUint(args[1], 10, 32); err != nil {
 			fmt.Println("'" + args[1] + "' is not a valid count.")
 		} else {
-			component.SetCount(uint(j))
+			if err := b.UpdateCount(component.GetId(), uint(j)); err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }
