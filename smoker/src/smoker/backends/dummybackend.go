@@ -17,7 +17,7 @@ type DummyBin struct {
 	Name     string
 	Capacity uint
 
-	Parts map[uint]bool
+	Parts map[string]bool
 }
 
 func (b *DummyBin) GetName() string {
@@ -27,8 +27,8 @@ func (b *DummyBin) GetCapacity() uint {
 	return b.Capacity
 }
 
-func (b *DummyBin) GetParts() []uint {
-	comp := make([]uint, 0)
+func (b *DummyBin) GetParts() []string {
+	comp := make([]string, 0)
 	for v := range b.Parts {
 		comp = append(comp, v)
 	}
@@ -36,7 +36,7 @@ func (b *DummyBin) GetParts() []uint {
 	return comp
 }
 
-func (b *DummyBin) deletePart(c uint) {
+func (b *DummyBin) deletePart(c string) {
 	delete(b.Parts, c)
 }
 
@@ -44,7 +44,8 @@ func (b *DummyBin) deletePart(c uint) {
 // Represents a component.
 // Probably will be used in all future backends
 type DummyComponent struct {
-	Id, Count uint
+	Id   string
+	Count uint
 	Owner     string
 
 	Name, Manufacturer string
@@ -56,7 +57,7 @@ func (c *DummyComponent) GetName() string {
 func (c *DummyComponent) GetManufacturer() string {
 	return c.Manufacturer
 }
-func (c *DummyComponent) GetId() uint {
+func (c *DummyComponent) GetId() string {
 	return c.Id
 }
 func (c *DummyComponent) GetBin() string {
@@ -75,7 +76,7 @@ func (c *DummyComponent) MatchStr(s string) bool {
 	totalStr := strings.Join(
 		[]string{c.GetName(),
 			c.GetManufacturer(),
-			strconv.Itoa(int(c.GetId())),
+			c.GetId(),
 			c.GetBin()}, " ")
 	return strings.Contains(strings.ToLower(totalStr), strings.ToLower(s))
 }
@@ -262,7 +263,7 @@ func NewDummyCredentialManager() CredentialManager {
 type DummyBackend struct {
 	// Map of component ID to component
 	// Use this for most lookups
-	IdLookup map[uint]Component
+	IdLookup map[string]Component
 	// List of all the bins
 	Bins map[string]DummyBin
 
@@ -279,7 +280,7 @@ func NewDummyBackend(numBins uint) Backend {
 		numBins = 1
 	}
 
-	idLookup := make(map[uint]Component)
+	idLookup := make(map[string]Component)
 	newDummy := DummyBackend{
 		IdLookup:    idLookup,
 		Bins:        make(map[string]DummyBin),
@@ -287,7 +288,7 @@ func NewDummyBackend(numBins uint) Backend {
 
 	// Let's make 10 bins, A00 -> A09
 	for i := 0; i < int(numBins); i++ {
-		mp := make(map[uint]bool)
+		mp := make(map[string]bool)
 		name := "A" + "0" + strconv.Itoa(i)
 		newDummy.Bins[name] = DummyBin{
 			Name:  name,
@@ -308,7 +309,7 @@ func NewDummyBackend(numBins uint) Backend {
 
 	return &newDummy
 }
-func NewComponent(id, count uint, name, manufacturer string) Component {
+func NewComponent(id string, count uint, name, manufacturer string) Component {
 	return &DummyComponent{
 		Id:           id,
 		Count:        count,
@@ -385,7 +386,7 @@ func (b *DummyBackend) MoveComponent(comp Component, name string) error {
 	}
 	return errors.New("Bin '" + name + "' was not found!")
 }
-func (b *DummyBackend) LookupId(id uint) (Component, Bin, error) {
+func (b *DummyBackend) LookupId(id string) (Component, Bin, error) {
 	if component, present := b.IdLookup[id]; !present {
 		return nil, nil, errors.New("No component found with that ID.")
 	} else {

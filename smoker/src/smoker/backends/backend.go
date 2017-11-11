@@ -7,7 +7,7 @@ type Backend interface {
 	// Moves components to another bin. Error on bin not existing or full
 	MoveComponent(Component, string) error
 	// Looks up an id. Will return error if the id does not exist
-	LookupId(uint) (Component, Bin, error)
+	LookupId(string) (Component, Bin, error)
 	// Adds a component to this backend, will return the suggested bin
 	// Error if lack of space
 	AddComponent(Component) (Bin, error)
@@ -29,14 +29,14 @@ type Backend interface {
 type Bin interface {
 	GetName() string
 	GetCapacity() uint
-	GetParts() []uint
-	deletePart(uint)
+	GetParts() []string
+	deletePart(string)
 }
 
 type Component interface {
 	GetName() string
 	GetManufacturer() string
-	GetId() uint
+	GetId() string
 	GetCount() uint
 	SetCount(uint)
 	// the string here is the unique bin name, same as returned from GetAllBinNames()
