@@ -430,7 +430,7 @@ func (b *DummyBackend) RemoveComponent(id string) error {
 }
 func (b *DummyBackend) UpdateCount(id string, count uint) error {
 	if c, _, err := b.LookupId(id); err != nil {
-		return err;
+		return err
 	} else {
 		if c.GetBin() == "" {
 			return errors.New("The requested component is not present")
