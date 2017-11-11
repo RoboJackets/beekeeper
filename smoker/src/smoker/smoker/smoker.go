@@ -24,7 +24,13 @@ var commands map[string]func([]string, backends.Backend, backends.Credential)
 
 // Main function for smoker
 func main() {
+	// TODO handle proper switching via a cli argument
+	startSmoker()
+}
 
+// ** Smoker Methods
+
+func startSmoker() {
 	intro()
 	initCommands()
 	color.Red("WARNING: Using LOCAL Backend. YOU are responsible for ensuring your data is safe!")
@@ -123,4 +129,10 @@ func read(s string) string {
 		os.Exit(0)
 	}
 	return text
+}
+
+// ** Varroa Methods
+
+func startVarroa() {
+
 }
