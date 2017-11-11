@@ -44,9 +44,9 @@ func (b *DummyBin) deletePart(c string) {
 // Represents a component.
 // Probably will be used in all future backends
 type DummyComponent struct {
-	Id   string
+	Id    string
 	Count uint
-	Owner     string
+	Owner string
 
 	Name, Manufacturer string
 }
