@@ -362,7 +362,12 @@ func (b *DummyBackend) AddComponent(comp Component) (Bin, error) {
 }
 
 // Moves a component from it's current bin to a valid one
-func (b *DummyBackend) MoveComponent(comp Component, name string) error {
+func (b *DummyBackend) MoveComponent(id string, name string) error {
+	comp, _, err := b.LookupId(id)
+	if err != nil {
+		return err
+	}
+
 	if comp.GetBin() == "" {
 		return errors.New("Comp is not stored in a bin yet!")
 	}
@@ -408,7 +413,11 @@ func (b *DummyBackend) GeneralSearch(s string) []Component {
 	}
 	return c
 }
-func (b *DummyBackend) RemoveComponent(comp Component) error {
+func (b *DummyBackend) RemoveComponent(id string) error {
+	comp, _, err := b.LookupId(id)
+	if err != nil {
+		return err
+	}
 	if comp.GetBin() == "" {
 		return errors.New("The requested component is not present")
 	} else {

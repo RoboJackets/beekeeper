@@ -260,7 +260,7 @@ func replScan(s []string, b backends.Backend) {
 					// we got nothing to move to...
 					break
 				}
-				if err := b.MoveComponent(comp, newBin); err == nil {
+				if err := b.MoveComponent(comp.GetId(), newBin); err == nil {
 					// Success!
 					break
 				} else {
@@ -325,7 +325,7 @@ func replMove(args []string, b backends.Backend) {
 			READBIN:
 				if bin, err := readStringLoop(binColor("bin> ")); err != nil {
 					return
-				} else if err := b.MoveComponent(component, bin); err != nil {
+				} else if err := b.MoveComponent(component.GetId(), bin); err != nil {
 					fmt.Println("Error: " + err.Error())
 					// Read the bin again!
 					goto READBIN
@@ -342,7 +342,7 @@ func replMove(args []string, b backends.Backend) {
 		if component, _, err := b.LookupId(id); err != nil {
 			fmt.Println("No component with id '" + id + "' was found.")
 			return
-		} else if err := b.MoveComponent(component, args[1]); err != nil {
+		} else if err := b.MoveComponent(component.GetId(), args[1]); err != nil {
 			fmt.Println("Error: " + err.Error())
 			return
 		}
@@ -361,7 +361,7 @@ func replRm(args []string, b backends.Backend) {
 				return
 			} else if component, _, err := b.LookupId(id); err != nil {
 				fmt.Println("'" + id + "' " + IDWarning)
-			} else if err := b.RemoveComponent(component); err != nil {
+			} else if err := b.RemoveComponent(component.GetId()); err != nil {
 				fmt.Println(ErrorDeleteID)
 				return
 			}
@@ -379,7 +379,7 @@ func replRm(args []string, b backends.Backend) {
 		}
 
 		for _, comp := range components {
-			if err := b.RemoveComponent(comp); err != nil {
+			if err := b.RemoveComponent(comp.GetId()); err != nil {
 				fmt.Println(ErrorDeleteID)
 				return
 			}

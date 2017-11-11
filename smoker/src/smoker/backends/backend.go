@@ -5,7 +5,7 @@ type Backend interface {
 	// or if you actually want a dump
 	GetAllComponents() []Component
 	// Moves components to another bin. Error on bin not existing or full
-	MoveComponent(Component, string) error
+	MoveComponent(string, string) error
 	// Looks up an id. Will return error if the id does not exist
 	LookupId(string) (Component, Bin, error)
 	// Adds a component to this backend, will return the suggested bin
@@ -15,7 +15,7 @@ type Backend interface {
 	// Returns a list of components that match the search
 	GeneralSearch(string) []Component
 	// Removes a component, and errors if not present.
-	RemoveComponent(Component) error
+	RemoveComponent(string) error
 	// Returns a list of all bin names
 	GetAllBinNames() []string
 	// Return a CredentialManager to handle me Auth
