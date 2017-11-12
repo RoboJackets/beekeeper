@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/mattn/go-gtk/glib"
 	"github.com/mattn/go-gtk/gtk"
 	"os/exec"
@@ -57,7 +56,7 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	window.Connect("destroy", func(ctx *glib.CallbackContext) {
 		println("bye bye!", ctx.Data().(string))
 		gtk.MainQuit()
-	}, "foo")
+	}, "")
 
 	//--------------------------------------------------------
 	// GtkVBox
@@ -98,7 +97,7 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	// GtkEntry
 	//--------------------------------------------------------
 	entry := gtk.NewEntry()
-	entry.SetText("Scanner Interface")
+	entry.SetText("123456")
 	framebox1.Add(entry)
 
 	// ** Output of Scanner Interface
@@ -124,7 +123,7 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	combos.Add(searchBox)
 
 	// Update button
-	updateButton := gtk.NewButtonWithLabel("Update Stuff")
+	updateButton := gtk.NewButtonWithLabel("Update Dump")
 	combos.Add(updateButton)
 
 	framebox2.PackStart(combos, false, false, 0)
@@ -240,11 +239,11 @@ func handleScan(id string, label *gtk.Label, b backends.Backend) {
 
 		messagedialog.Response(func() {
 			if idInt, err := strconv.ParseUint(countEntry.GetText(), 10, 32); err != nil {
-				fmt.Println("COUNT WAS INVALID")
+				showError("'" + countEntry.GetText() + "' was not a valid count.", label)
 			} else {
 				component := backends.NewComponent(id, uint(idInt), nameEntry.GetText(), manEntry.GetText())
 				if _, err := b.AddComponent(component); err != nil {
-					fmt.Println("ERROR ADDING COMPONENT")
+					showError("'" + countEntry.GetText() + "' was not a valid count.", label)
 				}
 			}
 			messagedialog.Destroy()
@@ -274,4 +273,20 @@ func updateListView(list *gtk.ListStore, searchCriteria string, b backends.Backe
 		list.Append(&iter)
 		list.Set(&iter, 0, v.GetId(), 1, v.GetBin(), 2, v.GetName(), 3, v.GetManufacturer(), 4, strconv.Itoa(int(v.GetCount())))
 	}
+}
+
+func showError(text string, parent *gtk.Label) {
+	messagedialog := gtk.NewMessageDialog(
+		parent.GetTopLevelAsWindow(),
+		gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+		gtk.MESSAGE_ERROR,
+		gtk.BUTTONS_OK,
+		text)
+
+	messagedialog.Response(func() {
+		messagedialog.Destroy()
+	})
+
+	messagedialog.ShowAll()
+	messagedialog.Run()
 }

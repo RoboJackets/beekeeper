@@ -12,6 +12,8 @@ someone please send help.
 Varroa is built in golang, atop the smoker internal backend.
 
 It uses [[https://github.com/mattn/go-gtk][go-gtk]], and therefore fits in with all the rest of your apps!
+However, it might be a pain to setup, because go's build system is
+subpar.
 
 1. Run ~git submodule update --init~
 2. Ensure you have the ~go~ command line tool installed
