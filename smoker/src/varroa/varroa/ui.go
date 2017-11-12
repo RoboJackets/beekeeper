@@ -148,10 +148,9 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	treeview.AppendColumn(gtk.NewTreeViewColumnWithAttributes("Count", gtk.NewCellRendererText(), "text", 4))
 	framebox2.Add(swin)
 
-	updateButton.Clicked(func () {
+	updateButton.Clicked(func() {
 		updateListView(store, searchBox.GetText(), backend)
 	})
-
 
 	//--------------------------------------------------------
 	// GtkMenuItem
@@ -239,11 +238,11 @@ func handleScan(id string, label *gtk.Label, b backends.Backend) {
 
 		messagedialog.Response(func() {
 			if idInt, err := strconv.ParseUint(countEntry.GetText(), 10, 32); err != nil {
-				showError("'" + countEntry.GetText() + "' was not a valid count.", label)
+				showError("'"+countEntry.GetText()+"' was not a valid count.", label)
 			} else {
 				component := backends.NewComponent(id, uint(idInt), nameEntry.GetText(), manEntry.GetText())
 				if _, err := b.AddComponent(component); err != nil {
-					showError("'" + countEntry.GetText() + "' was not a valid count.", label)
+					showError("'"+countEntry.GetText()+"' was not a valid count.", label)
 				}
 			}
 			messagedialog.Destroy()
@@ -259,7 +258,7 @@ func handleScan(id string, label *gtk.Label, b backends.Backend) {
 func updateListView(list *gtk.ListStore, searchCriteria string, b backends.Backend) {
 	list.Clear()
 
-	var c []backends.Component;
+	var c []backends.Component
 
 	if len(searchCriteria) == 0 {
 		// Dump everything
