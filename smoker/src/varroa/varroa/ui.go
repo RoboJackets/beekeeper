@@ -9,7 +9,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	// "smoker/backends"
 )
 
 // * Ui Functions
@@ -151,6 +150,9 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	updateButton.Clicked(func() {
 		updateListView(store, searchBox.GetText(), backend)
 	})
+	searchBox.Connect("activate", func () {
+		updateListView(store, searchBox.GetText(), backend)
+	})
 
 	//--------------------------------------------------------
 	// GtkMenuItem
@@ -204,6 +206,11 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 
 	framebox2.PackStart(statusbar, false, false, 0)
 
+	// DUMMY ADD ITEMS
+	generateDummyItems(backend)
+
+	updateListView(store, searchBox.GetText(), backend)
+
 	//--------------------------------------------------------
 	// Event
 	//--------------------------------------------------------
@@ -237,12 +244,12 @@ func handleScan(id string, label *gtk.Label, b backends.Backend) {
 		messagedialog.GetVBox().Add(countEntry)
 
 		messagedialog.Response(func() {
-			if idInt, err := strconv.ParseUint(countEntry.GetText(), 10, 32); err != nil {
+			if count, err := strconv.ParseUint(countEntry.GetText(), 10, 32); err != nil {
 				showError("'"+countEntry.GetText()+"' was not a valid count.", label)
 			} else {
-				component := backends.NewComponent(id, uint(idInt), nameEntry.GetText(), manEntry.GetText())
+				component := backends.NewComponent(id, uint(count), nameEntry.GetText(), manEntry.GetText())
 				if _, err := b.AddComponent(component); err != nil {
-					showError("'"+countEntry.GetText()+"' was not a valid count.", label)
+					showError("We were unable to add this component.", label)
 				}
 			}
 			messagedialog.Destroy()
@@ -253,6 +260,39 @@ func handleScan(id string, label *gtk.Label, b backends.Backend) {
 	} else {
 		label.SetText("Bin: " + bin.GetName() + "\nCount: " + strconv.Itoa(int(component.GetCount())))
 	}
+}
+
+func generateDummyItems(b backends.Backend) {
+	c:= backends.NewComponent("100", 124, "Capacitor", "DigiKey")
+	b.AddComponent(c)
+	c = backends.NewComponent("200", 342325, "Resistor", "DigiKey")
+	b.AddComponent(c)
+	c = backends.NewComponent("300", 10, "IC-1", "DigiKey")
+	b.AddComponent(c)
+	c = backends.NewComponent("400", 20, "IC-2", "DigiKey")
+	b.AddComponent(c)
+	c = backends.NewComponent("500", 3, "Soldering Iron", "MicroMark")
+	b.AddComponent(c)
+	c = backends.NewComponent("540", 3, "Soldering Iron Mark 2", "Marky Mark")
+	b.AddComponent(c)
+	c = backends.NewComponent("600", 1, "KSP", "Squad")
+	b.AddComponent(c)
+	c = backends.NewComponent("700", 9999999, "Magit", "Tarsius")
+	b.AddComponent(c)
+	c = backends.NewComponent("800", 30, "IC-3", "DigiKey")
+	b.AddComponent(c)
+	c = backends.NewComponent("900", 33, "IC-4", "DigiKey")
+	b.AddComponent(c)
+	c = backends.NewComponent("1000", 5000, "qutebrowser", "The-Compiler")
+	b.AddComponent(c)
+	c = backends.NewComponent("1100", 1, "powder toy", "everyone")
+	b.AddComponent(c)
+	c = backends.NewComponent("1200", 100, "Leaded Solder", "MicroMark")
+	b.AddComponent(c)
+	c = backends.NewComponent("1300", 0, "Lead Free Solder", "MicroMark")
+	b.AddComponent(c)
+	c = backends.NewComponent("1400", 214, "Batteries", "Duracell")
+	b.AddComponent(c)
 }
 
 func updateListView(list *gtk.ListStore, searchCriteria string, b backends.Backend) {
