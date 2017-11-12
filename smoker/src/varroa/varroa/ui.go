@@ -1,16 +1,15 @@
-
 package main
 
 import (
+	"fmt"
 	"github.com/mattn/go-gtk/glib"
 	"github.com/mattn/go-gtk/gtk"
-	"smoker/backends"
 	"os/exec"
 	"regexp"
-	"strconv"
+	"smoker/backends"
 	"sort"
+	"strconv"
 	"strings"
-	"fmt"
 	// "smoker/backends"
 )
 
@@ -108,7 +107,7 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	framebox1.Add(label2)
 
 	entry.Connect("activate", func() {
-		handleScan(entry.GetText(), label2, backend )
+		handleScan(entry.GetText(), label2, backend)
 	})
 
 	//--------------------------------------------------------
@@ -188,7 +187,6 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	})
 	submenu.Append(checkmenuitem)
 
-
 	cascademenu = gtk.NewMenuItemWithMnemonic("_Help")
 	menubar.Append(cascademenu)
 	submenu = gtk.NewMenu()
@@ -225,7 +223,6 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	gtk.Main()
 }
 
-
 // * Data Helper Functions
 
 func handleScan(id string, label *gtk.Label, b backends.Backend) {
@@ -233,10 +230,10 @@ func handleScan(id string, label *gtk.Label, b backends.Backend) {
 	if component, bin, err := b.LookupId(id); err != nil {
 		messagedialog := gtk.NewMessageDialog(
 			label.GetTopLevelAsWindow(),
-			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+			gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
 			gtk.MESSAGE_QUESTION,
 			gtk.BUTTONS_OK,
-			"Info On: " + id)
+			"Info On: "+id)
 
 		nameEntry := gtk.NewEntry()
 		nameEntry.SetText("Part Name")
@@ -260,7 +257,6 @@ func handleScan(id string, label *gtk.Label, b backends.Backend) {
 			}
 			messagedialog.Destroy()
 		})
-
 
 		messagedialog.ShowAll()
 		messagedialog.Run()

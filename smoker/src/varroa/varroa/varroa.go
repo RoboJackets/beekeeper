@@ -1,10 +1,10 @@
 package main
 
 import (
-	"smoker/backends"
 	"fmt"
-	"os"
 	"github.com/fatih/color"
+	"os"
+	"smoker/backends"
 )
 
 func main() {
