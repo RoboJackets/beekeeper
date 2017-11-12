@@ -135,32 +135,36 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	})
 	combos.Add(comboboxentry)
 
+	// Update button
+	updateButton := gtk.NewButtonWithLabel("Update Stuff")
+	combos.Add(updateButton)
+
 	framebox2.PackStart(combos, false, false, 0)
 
 	//--------------------------------------------------------
-	// GtkTextView
+	// Dump of items
 	//--------------------------------------------------------
+
 	swin := gtk.NewScrolledWindow(nil, nil)
-	swin.SetPolicy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-	swin.SetShadowType(gtk.SHADOW_IN)
-	textview := gtk.NewTextView()
-	var start, end gtk.TextIter
-	buffer := textview.GetBuffer()
-	buffer.GetStartIter(&start)
-	buffer.Insert(&start, "Hello ")
-	buffer.GetEndIter(&end)
-	buffer.Insert(&end, "World!")
-	tag := buffer.CreateTag("bold", map[string]string{
-		"background": "#FF0000", "weight": "700"})
-	buffer.GetStartIter(&start)
-	buffer.GetEndIter(&end)
-	buffer.ApplyTag(tag, &start, &end)
-	swin.Add(textview)
+	store := gtk.NewListStore(glib.G_TYPE_STRING,
+		glib.G_TYPE_STRING,
+		glib.G_TYPE_STRING,
+		glib.G_TYPE_STRING,
+		glib.G_TYPE_STRING)
+	treeview := gtk.NewTreeView()
+	swin.Add(treeview)
+	treeview.SetModel(store)
+	treeview.AppendColumn(gtk.NewTreeViewColumnWithAttributes("Id", gtk.NewCellRendererText(), "text", 0))
+	treeview.AppendColumn(gtk.NewTreeViewColumnWithAttributes("Bin", gtk.NewCellRendererText(), "text", 1))
+	treeview.AppendColumn(gtk.NewTreeViewColumnWithAttributes("Name", gtk.NewCellRendererText(), "text", 2))
+	treeview.AppendColumn(gtk.NewTreeViewColumnWithAttributes("Manufacturer", gtk.NewCellRendererText(), "text", 3))
+	treeview.AppendColumn(gtk.NewTreeViewColumnWithAttributes("Count", gtk.NewCellRendererText(), "text", 4))
 	framebox2.Add(swin)
 
-	buffer.Connect("changed", func() {
-		println("changed")
+	updateButton.Clicked(func () {
+		updateListView(store, backend)
 	})
+
 
 	//--------------------------------------------------------
 	// GtkMenuItem
@@ -263,4 +267,16 @@ func handleScan(id string, label *gtk.Label, b backends.Backend) {
 	} else {
 		label.SetText("Bin: " + bin.GetName() + "\nCount: " + strconv.Itoa(int(component.GetCount())))
 	}
+}
+
+func updateListView(list *gtk.ListStore, b backends.Backend) {
+	c := b.GetAllComponents()
+	list.Clear()
+
+	for _, v := range c {
+		var iter gtk.TreeIter
+		list.Append(&iter)
+		list.Set(&iter, 0, v.GetId(), 1, v.GetBin(), 2, v.GetName(), 3, v.GetManufacturer(), 4, strconv.Itoa(int(v.GetCount())))
+	}
+
 }
