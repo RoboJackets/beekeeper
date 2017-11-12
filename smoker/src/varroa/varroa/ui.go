@@ -117,23 +117,11 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	framebox2.PackStart(vsep, false, false, 0)
 
 	//--------------------------------------------------------
-	// GtkComboBoxEntry
+	// Search Box
 	//--------------------------------------------------------
 	combos := gtk.NewHBox(false, 1)
-	comboboxentry := gtk.NewComboBoxEntryNewText()
-	comboboxentry.Connect("changed", func() {
-		println("value:", comboboxentry.GetActiveText())
-	})
-	combos.Add(comboboxentry)
-
-	//--------------------------------------------------------
-	// GtkComboBoxEntry 2
-	//--------------------------------------------------------
-	comboboxentry = gtk.NewComboBoxEntryNewText()
-	comboboxentry.Connect("changed", func() {
-		println("value:", comboboxentry.GetActiveText())
-	})
-	combos.Add(comboboxentry)
+	searchBox := gtk.NewEntry()
+	combos.Add(searchBox)
 
 	// Update button
 	updateButton := gtk.NewButtonWithLabel("Update Stuff")
@@ -162,7 +150,7 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	framebox2.Add(swin)
 
 	updateButton.Clicked(func () {
-		updateListView(store, backend)
+		updateListView(store, searchBox.GetText(), backend)
 	})
 
 
@@ -269,14 +257,21 @@ func handleScan(id string, label *gtk.Label, b backends.Backend) {
 	}
 }
 
-func updateListView(list *gtk.ListStore, b backends.Backend) {
-	c := b.GetAllComponents()
+func updateListView(list *gtk.ListStore, searchCriteria string, b backends.Backend) {
 	list.Clear()
 
+	var c []backends.Component;
+
+	if len(searchCriteria) == 0 {
+		// Dump everything
+		c = b.GetAllComponents()
+	} else {
+		// Narrow on search results
+		c = b.GeneralSearch(searchCriteria)
+	}
 	for _, v := range c {
 		var iter gtk.TreeIter
 		list.Append(&iter)
 		list.Set(&iter, 0, v.GetId(), 1, v.GetBin(), 2, v.GetName(), 3, v.GetManufacturer(), 4, strconv.Itoa(int(v.GetCount())))
 	}
-
 }
