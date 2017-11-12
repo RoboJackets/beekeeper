@@ -5,7 +5,7 @@ Varroa - The Inferior [[https://github.com/RoboJackets/beekeeper][BeeKeeper]] Cl
 A beekeeper is never in control of their bees, what is going on,
 someone please send help.
 
-[[https://i.imgur.com/8XwZhQB.png]]
+[[https://i.imgur.com/5ywJRjL.png]]
 
 * Building
 
