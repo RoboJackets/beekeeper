@@ -1,4 +1,3 @@
-
 * Smoker
 
 Smoker - The Superior [[https://github.com/RoboJackets/beekeeper][BeeKeeper]] Client
