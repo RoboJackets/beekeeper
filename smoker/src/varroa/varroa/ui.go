@@ -7,6 +7,7 @@ import (
 	"smoker/backends"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"sort"
 	"strings"
 	"fmt"
@@ -227,33 +228,43 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 
 // * Data Helper Functions
 
-func handleScan(text string, label *gtk.Label, b backends.Backend) {
+func handleScan(id string, label *gtk.Label, b backends.Backend) {
 
-	messagedialog := gtk.NewMessageDialog(
-		label.GetTopLevelAsWindow(),
-		gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-		gtk.MESSAGE_QUESTION,
-		gtk.BUTTONS_OK,
-		"Info On: " + text)
+	if component, bin, err := b.LookupId(id); err != nil {
+		messagedialog := gtk.NewMessageDialog(
+			label.GetTopLevelAsWindow(),
+			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+			gtk.MESSAGE_QUESTION,
+			gtk.BUTTONS_OK,
+			"Info On: " + id)
 
-	nameEntry := gtk.NewEntry()
-	nameEntry.SetText("Part Name")
-	manEntry := gtk.NewEntry()
-	manEntry.SetText("Part Manufacturer")
-	countEntry := gtk.NewEntry()
-	countEntry.SetText("Part Count")
+		nameEntry := gtk.NewEntry()
+		nameEntry.SetText("Part Name")
+		manEntry := gtk.NewEntry()
+		manEntry.SetText("Part Manufacturer")
+		countEntry := gtk.NewEntry()
+		countEntry.SetText("Part Count")
 
-	messagedialog.GetVBox().Add(nameEntry)
-	messagedialog.GetVBox().Add(manEntry)
-	messagedialog.GetVBox().Add(countEntry)
+		messagedialog.GetVBox().Add(nameEntry)
+		messagedialog.GetVBox().Add(manEntry)
+		messagedialog.GetVBox().Add(countEntry)
 
-	messagedialog.Response(func() {
-		fmt.Println(nameEntry.GetText())
-		messagedialog.Destroy()
-	})
+		messagedialog.Response(func() {
+			if idInt, err := strconv.ParseUint(countEntry.GetText(), 10, 32); err != nil {
+				fmt.Println("COUNT WAS INVALID")
+			} else {
+				component := backends.NewComponent(id, uint(idInt), nameEntry.GetText(), manEntry.GetText())
+				if _, err := b.AddComponent(component); err != nil {
+					fmt.Println("ERROR ADDING COMPONENT")
+				}
+			}
+			messagedialog.Destroy()
+		})
 
-	messagedialog.ShowAll()
-	messagedialog.Run()
 
-	label.SetText("Info on: " + text)
+		messagedialog.ShowAll()
+		messagedialog.Run()
+	} else {
+		label.SetText("Bin: " + bin.GetName() + "\nCount: " + strconv.Itoa(int(component.GetCount())))
+	}
 }
