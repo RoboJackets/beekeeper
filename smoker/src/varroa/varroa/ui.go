@@ -13,6 +13,7 @@ import (
 
 // * Ui Functions
 
+// ** Helper Functions
 func uniq(strings []string) (ret []string) {
 	return
 }
@@ -57,26 +58,15 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 		gtk.MainQuit()
 	}, "")
 
-	//--------------------------------------------------------
-	// GtkVBox
-	//--------------------------------------------------------
+// ** High Level Structure
 	vbox := gtk.NewVBox(false, 1)
 
-	//--------------------------------------------------------
-	// GtkMenuBar
-	//--------------------------------------------------------
 	menubar := gtk.NewMenuBar()
 	vbox.PackStart(menubar, false, false, 0)
 
-	//--------------------------------------------------------
-	// GtkVPaned
-	//--------------------------------------------------------
 	vpaned := gtk.NewVPaned()
 	vbox.Add(vpaned)
 
-	//--------------------------------------------------------
-	// GtkFrame
-	//--------------------------------------------------------
 	frame1 := gtk.NewFrame("Scan Interface")
 	framebox1 := gtk.NewVBox(false, 1)
 	frame1.Add(framebox1)
@@ -92,14 +82,13 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	label.ModifyFontEasy("DejaVu Sans 15")
 	framebox1.PackStart(label, false, true, 0)
 
-	//--------------------------------------------------------
-	// GtkEntry
-	//--------------------------------------------------------
+// ** Scanner Entry Field
+
 	entry := gtk.NewEntry()
 	entry.SetText("123456")
 	framebox1.Add(entry)
 
-	// ** Output of Scanner Interface
+// ** Output of Scanner Interface
 	label2 := gtk.NewLabel("Please Scan An Item!")
 	label2.ModifyFontEasy("DejaVu Sans 15")
 	framebox1.Add(label2)
@@ -108,29 +97,20 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 		handleScan(entry.GetText(), label2, backend)
 	})
 
-	//--------------------------------------------------------
-	// GtkVSeparator
-	//--------------------------------------------------------
 	vsep := gtk.NewVSeparator()
 	framebox2.PackStart(vsep, false, false, 0)
 
-	//--------------------------------------------------------
-	// Search Box
-	//--------------------------------------------------------
 	combos := gtk.NewHBox(false, 1)
 	searchBox := gtk.NewEntry()
 	combos.Add(searchBox)
 
-	// Update button
+// ** Update Button
 	updateButton := gtk.NewButtonWithLabel("Update Dump")
 	combos.Add(updateButton)
 
 	framebox2.PackStart(combos, false, false, 0)
 
-	//--------------------------------------------------------
-	// Dump of items
-	//--------------------------------------------------------
-
+// ** Dump of Items
 	swin := gtk.NewScrolledWindow(nil, nil)
 	store := gtk.NewListStore(glib.G_TYPE_STRING,
 		glib.G_TYPE_STRING,
@@ -154,9 +134,7 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 		updateListView(store, searchBox.GetText(), backend)
 	})
 
-	//--------------------------------------------------------
-	// GtkMenuItem
-	//--------------------------------------------------------
+// ** Alt Menu
 	cascademenu := gtk.NewMenuItemWithMnemonic("_File")
 	menubar.Append(cascademenu)
 	submenu := gtk.NewMenu()
