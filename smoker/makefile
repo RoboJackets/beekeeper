@@ -5,6 +5,7 @@ all:
 
 pretty:
 	export GOPATH=`pwd` && go fmt smoker/...
+	export GOPATH=`pwd` && go fmt varroa/...
 
 # Run to generate enums (you need go stringer for this to be installed?!?!?!)
 stringer:
@@ -23,6 +24,14 @@ run-rlwrap: all
 
 r: run
 rr: run-rlwrap
+
+varroa:
+	@export GOPATH=`pwd` && go install varroa/varroa
+varroa-run: varroa
+	@./bin/varroa
+vr: varroa-run
+v: varroa
+
 
 win:
 	export GOPATH=`pwd` && GOOS=windows GOARCH=amd64 go build -o bin/smoker.exe smoker/smoker

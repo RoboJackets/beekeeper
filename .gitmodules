@@ -13,3 +13,9 @@
 [submodule "smoker/src/golang.org/x/--force"]
 	path = smoker/src/golang.org/x/--force
 	url = https://github.com/golang/crypto.git
+[submodule "smoker/src/github.com/mattn/go-gtk"]
+	path = smoker/src/github.com/mattn/go-gtk
+	url = https://github.com/mattn/go-gtk
+[submodule "smoker/src/github.com/mattn/go-pointer"]
+	path = smoker/src/github.com/mattn/go-pointer
+	url = https://github.com/mattn/go-pointer

@@ -1,0 +1,32 @@
+* Varroa
+
+Varroa - The Inferior [[https://github.com/RoboJackets/beekeeper][BeeKeeper]] Client
+
+A beekeeper is never in control of their bees, what is going on,
+someone please send help.
+
+[[https://i.imgur.com/5ywJRjL.png]]
+
+* Building
+
+Varroa is built in golang, atop the smoker internal backend.
+
+It uses [[https://github.com/mattn/go-gtk][go-gtk]], and therefore fits in with all the rest of your apps!
+However, it might be a pain to setup, because go's build system is
+subpar.
+
+1. Run ~git submodule update --init~
+2. Ensure you have the ~go~ command line tool installed
+3. Run ~make v~ in this folder to compile, and ~make vr~ to execute
+
+* Install
+
+Simply copy the binary made in ~make~ from ~./bin~ onto your ~$PATH~.
+
+* Issues
+
+Please report issues on [[https://github.com/RoboJackets/beekeeper][RoboJackets/beekeeper]].
+
+* Documentation
+
+Probably never going to happen.
