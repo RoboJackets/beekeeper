@@ -3,47 +3,15 @@ package main
 import (
 	"github.com/mattn/go-gtk/glib"
 	"github.com/mattn/go-gtk/gtk"
-	"os/exec"
-	"regexp"
 	"smoker/backends"
-	"sort"
 	"strconv"
-	"strings"
 )
 
 // * Ui Functions
 
 // ** Helper Functions
-func uniq(strings []string) (ret []string) {
-	return
-}
-
 func authors() []string {
-	if b, err := exec.Command("git", "log").Output(); err == nil {
-		lines := strings.Split(string(b), "\n")
-
-		var a []string
-		r := regexp.MustCompile(`^Author:\s*([^ <]+).*$`)
-		for _, e := range lines {
-			ms := r.FindStringSubmatch(e)
-			if ms == nil {
-				continue
-			}
-			a = append(a, ms[1])
-		}
-		sort.Strings(a)
-		var p string
-		lines = []string{}
-		for _, e := range a {
-			if p == e {
-				continue
-			}
-			lines = append(lines, e)
-			p = e
-		}
-		return lines
-	}
-	return []string{"The Dark Lord, Sauron"}
+	return []string{"Jay Kamat (jgkamat)"}
 }
 
 func startUi(backend backends.Backend, credManager backends.CredentialManager, cred backends.Credential) {
@@ -58,7 +26,7 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 		gtk.MainQuit()
 	}, "")
 
-// ** High Level Structure
+	// ** High Level Structure
 	vbox := gtk.NewVBox(false, 1)
 
 	menubar := gtk.NewMenuBar()
@@ -82,13 +50,13 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	label.ModifyFontEasy("DejaVu Sans 15")
 	framebox1.PackStart(label, false, true, 0)
 
-// ** Scanner Entry Field
+	// ** Scanner Entry Field
 
 	entry := gtk.NewEntry()
 	entry.SetText("123456")
 	framebox1.Add(entry)
 
-// ** Output of Scanner Interface
+	// ** Output of Scanner Interface
 	label2 := gtk.NewLabel("Please Scan An Item!")
 	label2.ModifyFontEasy("DejaVu Sans 15")
 	framebox1.Add(label2)
@@ -104,13 +72,13 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	searchBox := gtk.NewEntry()
 	combos.Add(searchBox)
 
-// ** Update Button
+	// ** Update Button
 	updateButton := gtk.NewButtonWithLabel("Update Dump")
 	combos.Add(updateButton)
 
 	framebox2.PackStart(combos, false, false, 0)
 
-// ** Dump of Items
+	// ** Dump of Items
 	swin := gtk.NewScrolledWindow(nil, nil)
 	store := gtk.NewListStore(glib.G_TYPE_STRING,
 		glib.G_TYPE_STRING,
@@ -130,11 +98,11 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 	updateButton.Clicked(func() {
 		updateListView(store, searchBox.GetText(), backend)
 	})
-	searchBox.Connect("activate", func () {
+	searchBox.Connect("activate", func() {
 		updateListView(store, searchBox.GetText(), backend)
 	})
 
-// ** Alt Menu
+	// ** Alt Menu
 	cascademenu := gtk.NewMenuItemWithMnemonic("_File")
 	menubar.Append(cascademenu)
 	submenu := gtk.NewMenu()
@@ -168,7 +136,19 @@ func startUi(backend backends.Backend, credManager backends.CredentialManager, c
 		dialog.SetName("Varroa Info")
 		dialog.SetProgramName("Varroa")
 		dialog.SetAuthors(authors())
-		dialog.SetLicense("The library is available under the same terms and conditions as the Go, the BSD style license, and the LGPL (Lesser GNU Public License). The idea is that if you can use Go (and Gtk) in a project, you should also be able to use go-gtk.")
+		dialog.SetLicense(
+			`This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.`)
 		dialog.SetWrapLicense(true)
 		dialog.Run()
 		dialog.Destroy()
@@ -241,7 +221,7 @@ func handleScan(id string, label *gtk.Label, b backends.Backend) {
 }
 
 func generateDummyItems(b backends.Backend) {
-	c:= backends.NewComponent("100", 124, "Capacitor", "DigiKey")
+	c := backends.NewComponent("100", 124, "Capacitor", "DigiKey")
 	b.AddComponent(c)
 	c = backends.NewComponent("200", 342325, "Resistor", "DigiKey")
 	b.AddComponent(c)
