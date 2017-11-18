@@ -1,4 +1,4 @@
-package beekeeper.langstroth.model;
+package beekeeper.exploring.model;
 
 import java.math.BigInteger;
 
