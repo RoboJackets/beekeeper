@@ -49,6 +49,10 @@ func intro() {
 	fmt.Println(INTRO_TEXT)
 	color.Cyan(INTRO_ASCII)
 
+	if os.Getenv("TERM") == "dumb" {
+		color.NoColor = false
+	}
+
 	c := color.New(color.FgRed).Add(color.Bold)
 	fmt.Print("For help, type '")
 	c.Printf("help")
