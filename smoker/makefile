@@ -48,8 +48,11 @@ netbsd:
 openbsd:
 	export GOPATH=`pwd` && GOOS=openbsd GOARCH=amd64 go build -o bin/smoker_openbsd smoker/smoker
 
+freebsd:
+	export GOPATH=`pwd` && GOOS=freebsd GOARCH=amd64 go build -o bin/smoker_freebsd smoker/smoker
+
 # TODO support plan9 (bug golang color library to support it)
 # plan9:
 # 	export GOPATH=`pwd` && GOOS=plan9 GOARCH=amd64 go build -o bin/smoker_plan9 smoker/smoker
 
-multirelease: linux netbsd openbsd win mac
+multirelease: linux freebsd netbsd openbsd win mac
