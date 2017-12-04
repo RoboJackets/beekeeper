@@ -1,0 +1,17 @@
+
+* 0.1.0
+
+Initial Release of the smoker inventory suite.
+
+Please report bugs to [[https://github.com/RoboJackets/beekeeper/issues][RoboJackets/beekeeper]]
+
+** Features
+- Add [[file:VARROA.org::*Varroa][Varroa]], a limited GUI interface to the smoker API
+- Allow keys to formed from any characters, not just integers
+- Add serialization of the smoker backend using ~gob~
+
+** Fixes
+- Update documentation to match new features
+
+** Known Issues
+- None

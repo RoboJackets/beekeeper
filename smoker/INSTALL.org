@@ -1,0 +1,37 @@
+
+
+* Smoker Installation Guide
+
+- Download a release from [[https://github.com/RoboJackets/beekeeper/releases][the releases page]]
+- Place the binary corresponding to your path, mark it as executable,
+  and rename it as 'smoker' if it isn't already
+
+  #+BEGIN_SRC sh
+    chmod +x ./smoker_linux
+    mv smoker_linux ~/.bin/smoker
+    which smoker
+  #+END_SRC
+- Run smoker from your shell
+
+  #+BEGIN_SRC sh
+    smoker
+  #+END_SRC
+
+* Varroa Installation Guide
+
+Due to limitations in demand, Varroa is only built on linux. If you
+would like to have it on other platforms, please [[file:VARROA.org][build it from source]].
+
+
+- Download a release from [[https://github.com/RoboJackets/beekeeper/releases][the releases page]]
+- Place the binary corresponding to your path, and mark it as executable
+  #+BEGIN_SRC sh
+    chmod +x ./varroa_linux
+    mv varroa_linux ~/.bin/varroa
+    which varroa
+  #+END_SRC
+- Run varroa from your shell
+
+  #+BEGIN_SRC sh
+    varroa
+  #+END_SRC

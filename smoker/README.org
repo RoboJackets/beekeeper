@@ -4,9 +4,17 @@ Smoker - The Superior [[https://github.com/RoboJackets/beekeeper][BeeKeeper]] Cl
 
 A beekeeper is usually in control of their bees, but when things start to get hairy, they always reach for their [[https://github.com/RoboJackets/beekeeper/tree/master/smoker][smoker]].
 
-[[file:https://cdn.pixabay.com/photo/2013/06/24/21/26/incense-140992_960_720.jpg]]
+[[https://cdn.pixabay.com/photo/2013/06/24/21/26/incense-140992_960_720.jpg]]
 
-* Building
+* Documentation
+
+[[file:CHANGELOG.org][ChangeLog]]
+
+[[file:INSTALL.org][Install Guide]]
+
+* QuickStart
+
+** Build
 
 ~smoker~ is built in golang.
 
@@ -14,7 +22,7 @@ A beekeeper is usually in control of their bees, but when things start to get ha
 2. Ensure you have the ~go~ command line tool installed
 3. Run ~make~ in this folder to compile, and ~make run~ to execute
 
-* Install
+** Install
 
 Simply copy the binary made in ~make~ from ~./bin~ onto your ~$PATH~.
 
