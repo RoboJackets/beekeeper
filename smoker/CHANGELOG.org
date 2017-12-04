@@ -14,4 +14,5 @@ Please report bugs to [[https://github.com/RoboJackets/beekeeper/issues][RoboJac
 - Update documentation to match new features
 
 ** Known Issues
-- None
+- Smoker does not successfully compile on plan9, due to limitations in
+  a library.

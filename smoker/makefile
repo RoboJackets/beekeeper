@@ -51,8 +51,13 @@ openbsd:
 freebsd:
 	export GOPATH=`pwd` && GOOS=freebsd GOARCH=amd64 go build -o bin/smoker_freebsd smoker/smoker
 
+varroa_dist:
+	export GOPATH=`pwd` && GOOS=linux GOARCH=amd64 go build -o bin/varroa_linux varroa/varroa
+
 # TODO support plan9 (bug golang color library to support it)
 # plan9:
 # 	export GOPATH=`pwd` && GOOS=plan9 GOARCH=amd64 go build -o bin/smoker_plan9 smoker/smoker
 
 multirelease: linux freebsd netbsd openbsd win mac
+
+dist: multirelease varroa_dist
