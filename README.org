@@ -1,0 +1,25 @@
+
+* BeeKeeper [[https://circleci.com/gh/RoboJackets/beekeeper.svg?style=shield]]
+
+Acclimating a new generation to high altitudes.
+
+If you are just getting started, please view the [[file:smoker/README.org][smoker]] readme for an
+introduction to beekeeper, installation instructions, and other documentation.
+
+** [[file:smoker/README.org][Smoker]] (CLI Frontend)
+
+Smoker is the advanced cli frontend to beekeeper, designed for power users and administrators.
+
+It uses it's own internal beekeeper backend, to simplify administration and make things easier.
+
+See the [[file:smoker/README.org::*Smoker][smoker readme]] for more information.
+
+*** [[file:smoker/VARROA.org][Varroa]] (Smoker GUI Frontend)
+
+Varroa is an GUI frontend to internal smoker backend, designed for people who really have no idea what they are doing.
+
+See the  [[file:smoker/VARROA.org][varroa readme]] for more information.
+
+** TODO Langstroth                                                :noexport:
+
+** TODO Warre                                                     :noexport:

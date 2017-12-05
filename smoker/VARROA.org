@@ -1,4 +1,3 @@
-
 * Varroa
 
 Varroa - The Inferior [[https://github.com/RoboJackets/beekeeper][BeeKeeper]] Client
