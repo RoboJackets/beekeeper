@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Beekeeper - Remove Item</title>
+
+	<!-- external resource links -->
+	<link rel="stylesheet"
+		  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+		  integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+		  crossorigin="anonymous">
+
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"
+			integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+			crossorigin="anonymous"></script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
+			integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+			crossorigin="anonymous"></script>
+
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+			integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+			crossorigin="anonymous"></script>
+
+	<!-- internal resource links -->
+	<script src="../js/global_on_page_load.js"></script>
+	<script src="../js/banner.js"></script>
+	<script src="../js/authentication.js"></script>
+
+	<!-- initialize page -->
+	<script>
+		jQuery(document).ready(function(){
+			on_page_ready();
+		});
+	</script>
+</head>
+<body>
+<!-- page content -->
+<div class="container" id="header">
+	<div class="row">
+		<div class="col-xs-12 col-sm-12 col-md-offset-3 col-md-6 col-lg-offset-3 col-lg-6">
+			<div id="banner_inject"></div>
+
+			<div class="well">
+				<h1>Remove Item</h1>
+
+				<form>
+					<ul class="list-inline">
+						<li><a href="../user/profile.html">Profile</a></li>
+						<li>|</li>
+						<li><a href="../acct/login.html">Logout</a></li>
+					</ul>
+				</form>
+				<form>
+					<div class="form-group" id="id_div">
+						<label for="id_input">ID</label>
+						<input type="id" class="form-control" id="id_input" placeholder="1">
+						<span id="id_input_feedback" class="help-block"></span>
+					</div>
+
+					<ul class="list-inline">
+						<li>
+							<div class="form-group">
+								<button type="button" class="btn btn-primary" id="submit_button">Submit</button>
+								<span id="input_feedback" class="help-block has-success"></span>
+							</div>
+						</li>
+						<li><a href="inventory.html">Back</a></li>
+					</ul>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php
+echo "Hell world!";
+?>
+
+</body>
+</html>

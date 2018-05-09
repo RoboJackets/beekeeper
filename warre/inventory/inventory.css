@@ -1,0 +1,7 @@
+.btn {
+  color: #f8f8f8;
+  background: #181818;
+  padding: 10px 40px;
+  text-decoration: none; 
+  transition: background .5s; 
+}
